@@ -113,6 +113,7 @@ class DrinkView(View):
                         label_url = image_url,
                     )
 
+
             # industrial_product_infos 테이블
             IndustrialProductInfo.objects.create(
                 product                        = product,
@@ -127,8 +128,10 @@ class DrinkView(View):
                 import_declaration             = data['import_declaration'],
             )
 
+
             # drink_category 테이블
             drink_category, flag = DrinkCategory.objects.get_or_create(name=data['drink_category'])
+
 
             # drink_details 테이블
             drink_detail =DrinkDetail.objects.create(
@@ -170,7 +173,7 @@ class DrinkView(View):
             for paring in parings:
                 paring = json.loads(paring)
                 paring, flag = Paring.objects.get_or_create(
-                    name = paring['name'],
+                    name        = paring['name'],
                     description = paring['description'],
                 )
                 drink_detail.drink_detail_paring.add(paring)
@@ -202,7 +205,7 @@ class DrinkView(View):
                 )
 
 
-            # 모든 데이터 입력 후 마지막에 is_done 을 True로 수정 -> 임시저장 모드를 지원하기 위함
+            # 모든 데이터 입력 후 마지막에 is_done 을 True로 수정 -> 추후 임시저장 모드를 지원하기 위함
             product.is_done = True
             product.save()
 

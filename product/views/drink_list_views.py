@@ -10,7 +10,6 @@ from django.db.utils import IntegrityError
 from user.models    import Administrator
 from product.models import ProductCategory, DrinkCategory, IndustrialProductInfo, Manufacture, \
                            Label, TasteMatrix, DrinkDetail, DrinkDetailVolume, Product, Tag, ProductImage, Paring, DrinkDetailParing
-from my_settings  import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from product.utils import reverse_foreign_key_finder
 
 
@@ -24,7 +23,6 @@ class DrinkListView(View):
         limit += offset
 
         try:
-
             # reverse_foreign_key_finder(Product)
             """
             ProductTag      product producttag_set
@@ -46,12 +44,9 @@ class DrinkListView(View):
                     'id'       : product_image.id,
                     'image_url': product_image.image_url,
                 }for product_image in product.productimage_set.all()],
-
                 'product_category': product.product_category.name,
                 'drink_category': product.drinkdetail_set.all()[0].drink_category.name,
-
                 'brewery': product.manufacture.name,
-
                 'product_name' : product.name,
                 'price'        : product.price,
                 'discount_rate': product.discount_rate,

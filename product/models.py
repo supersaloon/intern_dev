@@ -18,7 +18,7 @@ class Tag(models.Model):
 
 # product to tag 중간 테이블
 class ProductTag(models.Model):
-    product = models.ForeignKey('Product', on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, null=True)
     tag     = models.ForeignKey(Tag, on_delete=models.SET_NULL, null=True)
 
     class Meta:
@@ -117,7 +117,7 @@ class Paring(models.Model):
 
 # drink_detail to paring 중간 테이블
 class DrinkDetailParing(models.Model):
-    drink_detail = models.ForeignKey('DrinkDetail', on_delete=models.SET_NULL, null=True)
+    drink_detail = models.ForeignKey('DrinkDetail', on_delete=models.CASCADE, null=True)
     paring       = models.ForeignKey(Paring, on_delete=models.SET_NULL, null=True)
 
     class Meta:
@@ -134,7 +134,7 @@ class BaseMaterial(models.Model):
 
 # drink_detail to base_material 중간 테이블
 class DrinkDetailBaseMaterial(models.Model):
-    drink_detail  = models.ForeignKey('DrinkDetail', on_delete=models.SET_NULL, null=True)
+    drink_detail  = models.ForeignKey('DrinkDetail', on_delete=models.CASCADE, null=True)
     base_material = models.ForeignKey(BaseMaterial, on_delete=models.SET_NULL, null=True)
 
     class Meta:
@@ -151,7 +151,7 @@ class Volume(models.Model):
 
 # 주류 용량(및 가격) 중간 테이블
 class DrinkDetailVolume(models.Model):
-    drink_detail = models.ForeignKey('DrinkDetail', on_delete=models.SET_NULL, null=True)
+    drink_detail = models.ForeignKey('DrinkDetail', on_delete=models.CASCADE, null=True)
     volume       = models.ForeignKey(Volume, on_delete=models.SET_NULL, null=True)
     price        = models.DecimalField(max_digits = 10, decimal_places = 2)
 
