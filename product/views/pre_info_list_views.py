@@ -20,6 +20,14 @@ class PreInfoListView(View):
     def get(self, request):
         try:
             pre_info_data = [{
+                'product_category': [{
+                    'id'              : product_category.id,
+                    'product_category': product_category.name,
+                } for product_category in ProductCategory.objects.all()],
+                'drink_category'  : [{
+                    'id'            : drink_category.id,
+                    'drink_category': drink_category.name,
+                } for drink_category in DrinkCategory.objects.all()],
                 'brewery': [{
                     'id': brewery.id,
                     'name': brewery.name,
