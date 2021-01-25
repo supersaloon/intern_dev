@@ -19,7 +19,7 @@ class PreInfoListView(View):
     @transaction.atomic
     def get(self, request):
         try:
-            pre_info_data = [{
+            pre_info_data = {
                 'product_category': [{
                     'id'              : product_category.id,
                     'product_category': product_category.name,
@@ -48,7 +48,7 @@ class PreInfoListView(View):
                     'id': volume.id,
                     'name': volume.name,
                 }for volume in Volume.objects.all()],
-            }]
+            }
 
             return JsonResponse({"MESSAGE": "SUCCESS", "pre_info_data": pre_info_data}, status=200)
 

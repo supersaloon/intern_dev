@@ -221,9 +221,6 @@ class DrinkView(View):
             product = Product.objects.get(id=product_id)
             product.delete()
 
-
-
-
             return JsonResponse({'MESSAGE': 'SUCCESS'}, status=200)
 
         except KeyError as e:

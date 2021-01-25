@@ -21,6 +21,7 @@ class DrinkListView(View):
         offset = int(request.GET.get('offset', 0))
         limit  = int(request.GET.get('limit', 10))
         limit += offset
+        drink_category = request.GET.get('drink_category')
 
         try:
             # reverse_foreign_key_finder(Product)
@@ -32,11 +33,12 @@ class DrinkListView(View):
             DrinkDetail     product drinkdetail_set
             """
 
+
             products = Product.objects\
                 .select_related('product_category', 'manufacture')\
                 .prefetch_related('productimage_set',  'drinkdetail_set', 'drinkdetail_set__drink_category')\
                 .order_by('-created_at')\
-                .all()
+                .all()\
 
             drink_data = [{
                 'id' : product.id,

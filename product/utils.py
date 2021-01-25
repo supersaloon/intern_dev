@@ -17,3 +17,4 @@ def reverse_foreign_key_finder(Model):
             related_object.get_accessor_name(),
             sep='\t',
         )
+
