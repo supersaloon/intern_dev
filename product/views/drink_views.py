@@ -19,34 +19,24 @@ class DrinkView(View):
     @transaction.atomic
     def post(self, request):
         try:
-            # data = json.loads(request.body)
             data = request.POST
-            # data: <QueryDict: {'product_name': ['박채훈의 입벌구주'], 'subtitle': ['입만 벌리면']}>
             print(f'data: {data}')
             print()
             print()
 
 
             # manufacture_types 테이블
-            manufacture_type, flag = ManufactureType.objects.get_or_create(name=data['manufacture_type'])
+            # manufacture_type, flag = ManufactureType.objects.get_or_create(name=data['manufacture_type'])
+            # manufacture_type = ManufactureType.objects.get(name=data['manufacture_type'])
 
 
             # manufactures 테이블
-            manufacture, flag = Manufacture.objects.get_or_create(
-                name                        = data['manufacture_name'],
-                manufacture_type            = manufacture_type,
-                origin                      = data['origin'],
-                representative_name         = data['representative_name'],
-                email                       = data['email'],
-                phone_number                = data['phone_number'],
-                address                     = data['address'],
-                company_registration_number = data['company_registration_number'],
-                mail_order_report_number    = data['mail_order_report_number'],
-            )
+            manufacture = Manufacture.objects.get(name=data['manufacture_name'])
 
 
             # product_category 테이블
             product_category, flag = ProductCategory.objects.get_or_create(name=data['product_category'])
+            # product_category = ProductCategory.objects.get(name=data['product_category'])
 
 
             # products 테이블
