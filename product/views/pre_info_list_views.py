@@ -1,17 +1,10 @@
-import boto3
-import uuid
-import json
-
 from django.http  import JsonResponse
 from django.views import View
 from django.db    import transaction
-from django.db.utils import IntegrityError
 
-from user.models    import Administrator
+
 from product.models import ProductCategory, DrinkCategory, IndustrialProductInfo, Manufacture, ManufactureType, Volume, \
                            Label, TasteMatrix, DrinkDetail, DrinkDetailVolume, Product, Tag, ProductImage, Paring, BaseMaterial
-from my_settings  import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
-from product.utils import s3_client
 
 
 class PreInfoListView(View):
@@ -22,31 +15,34 @@ class PreInfoListView(View):
             pre_info_data = {
                 'product_category': [{
                     'id'              : product_category.id,
-                    'product_category': product_category.name,
+                    'name': product_category.name,
                 } for product_category in ProductCategory.objects.all()],
+
                 'drink_category'  : [{
                     'id'            : drink_category.id,
-                    'drink_category': drink_category.name,
+                    'name': drink_category.name,
                 } for drink_category in DrinkCategory.objects.all()],
+
                 'brewery': [{
                     'id': brewery.id,
                     'name': brewery.name,
                 }for brewery in Manufacture.objects.filter(manufacture_type=ManufactureType.objects.get(name="양조장"))],
+
                 'tag': [{
-                    'id': tag.id,
-                    'name': tag.name,
+                    'value': tag.id,
+                    'label': tag.name,
                 }for tag in Tag.objects.all()],
                 'paring': [{
-                    'id': paring.id,
-                    'name': paring.name,
+                    'value': paring.id,
+                    'label': paring.name,
                 }for paring in Paring.objects.all()],
                 'base_material': [{
-                    'id': base_material.id,
-                    'name': base_material.name,
+                    'value': base_material.id,
+                    'label': base_material.name,
                 }for base_material in BaseMaterial.objects.all()],
                 'volume': [{
-                    'id': volume.id,
-                    'name': volume.name,
+                    'value': volume.id,
+                    'label': volume.name,
                 }for volume in Volume.objects.all()],
             }
 
