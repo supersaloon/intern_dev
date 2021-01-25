@@ -91,7 +91,6 @@ class DrinkView(View):
                         product   = product,
                         image_url = image_url,
                     )
-                    print("이미지 추가")
 
 
             # labels 테이블  # KEY: label
@@ -215,6 +214,94 @@ class DrinkView(View):
             return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
+
+
+    @transaction.atomic
+    def delete(self, request, product_id):
+        try:
+
+            product = Product.objects.get(product_id=product_id)
+
+
+            # drink_data = {
+            #     product_category =
+            #     manufacture_type
+            #     manufacture_name
+            #     origin
+            #     representative_name
+            #     email
+            #     phone_number
+            #     address
+            #     company_registration_number
+            #     mail_order_report_number
+            #
+            #     product_name
+            #     subtitle
+            #     price
+            #     content
+            #     is_damhwa_box
+            #     discount_rate
+            #     award
+            #
+            #     tag
+            #
+            #     product_image
+            #
+            #     label
+            #
+            #     food_type
+            #     business_name
+            #     location
+            #     shelf_life
+            #     volume_by_packing
+            #     base_material_name_and_content
+            #     nutrient
+            #     gmo
+            #     import_declaration
+            #
+            #     drink_category
+            #
+            #     alcohol_content
+            #     fragrance  # 향
+            #     flavor  # 맛
+            #     finish  # 피니시
+            #     with_who  # 누구와?
+            #     what_situation  # 어느 상황에?
+            #     what_mood  # 어떤 기분에?
+            #     what_profit  # 좋은 점은?
+            #     recommend_situation  # 맛+어울리는 상황
+            #     recommend_eating_method  # 추천 안주 및 음용방법
+            #     additional_info  # 기타정보
+            #
+            #     body  # 바디감
+            #     acidity  # 산미
+            #     sweetness  # 단맛
+            #     tannin  # 타닌
+            #     bitter  # 쓴맛
+            #     sparkling  # 탄산감
+            #     light  # 담백
+            #     turbidity  # 탁도
+            #     savory  # 풍미
+            #     gorgeous  # 화려
+            #     spicy  # 매운맛
+            #
+            #     paring
+            #
+            #     base_material
+            #
+            #     volume_and_price
+            #
+            # }
+
+
+
+            return JsonResponse({'MESSAGE': 'SUCCESS'}, status=200)
+
+        except IntegrityError as e:
+            return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
+        except KeyError as e:
+            return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
+
 
 
 

@@ -75,7 +75,7 @@ class Product(models.Model):
 
 
 class ProductImage(models.Model):
-    product   = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product   = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     image_url = models.URLField(max_length=2000)
 
     class Meta:
@@ -83,7 +83,7 @@ class ProductImage(models.Model):
 
 
 class IndustrialProductInfo(models.Model):
-    product                        = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product                        = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     food_type                      = models.CharField(max_length=45)
     business_name                  = models.CharField(max_length=45)
     location                       = models.CharField(max_length=200)
@@ -99,7 +99,7 @@ class IndustrialProductInfo(models.Model):
 
 
 class Label(models.Model):
-    product   = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product   = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     label_url = models.URLField(max_length=2000)
 
     class Meta:
@@ -167,7 +167,7 @@ class DrinkCategory(models.Model):
 
 
 class DrinkDetail(models.Model):
-    product                    = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product                    = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     drink_category             = models.ForeignKey(DrinkCategory, on_delete=models.SET_NULL, null=True)
 
     drink_detail_volume        = models.ManyToManyField(Volume, through=DrinkDetailVolume, related_name='drink_detail_volume_set')
@@ -191,7 +191,7 @@ class DrinkDetail(models.Model):
 
 
 class TasteMatrix(models.Model):
-    drink_detail = models.ForeignKey(DrinkDetail, on_delete=models.SET_NULL, null=True)
+    drink_detail = models.ForeignKey(DrinkDetail, on_delete=models.CASCADE, null=True)
     body         = models.DecimalField(max_digits = 2, decimal_places = 1)
     acidity      = models.DecimalField(max_digits = 2, decimal_places = 1)
     sweetness    = models.DecimalField(max_digits = 2, decimal_places = 1)
