@@ -53,7 +53,7 @@ class DrinkListView(View):
                 'create_at'    : product.created_at
             }for product in products][offset:limit]
 
-            return JsonResponse({'MESSAGE': 'SUCCESS', "drink_data": drink_data}, status=201)
+            return JsonResponse({'MESSAGE': 'SUCCESS', "drink_data": drink_data}, status=200)
 
         except IntegrityError as e:
             return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
