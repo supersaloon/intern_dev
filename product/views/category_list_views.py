@@ -22,7 +22,7 @@ class CategoryListView(View):
                 } for drink_category in DrinkCategory.objects.all()],
             }
 
-            return JsonResponse({'MESSAGE': 'SUCCESS', "category_list_data": category_list_data}, status=201)
+            return JsonResponse({'MESSAGE': 'SUCCESS', "category_list_data": category_list_data}, status=200)
 
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
