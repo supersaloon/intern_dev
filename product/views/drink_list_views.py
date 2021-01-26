@@ -33,12 +33,20 @@ class DrinkListView(View):
             DrinkDetail     product drinkdetail_set
             """
 
+            if drink_category:
+                products = Product.objects\
+                    .select_related('product_category', 'manufacture')\
+                    .prefetch_related('productimage_set', 'drinkdetail_set', 'drinkdetail_set__drink_category')\
+                    .filter(drinkdetail__drink_category__name=drink_category)\
+                    .order_by('-created_at')
 
-            products = Product.objects\
-                .select_related('product_category', 'manufacture')\
-                .prefetch_related('productimage_set',  'drinkdetail_set', 'drinkdetail_set__drink_category')\
-                .order_by('-created_at')\
-                .all()\
+            else:
+                products = Product.objects\
+                    .select_related('product_category', 'manufacture')\
+                    .prefetch_related('productimage_set',  'drinkdetail_set', 'drinkdetail_set__drink_category')\
+                    .all()\
+                    .order_by('-created_at')
+
 
             drink_data = [{
                 'id' : product.id,
