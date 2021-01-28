@@ -6,7 +6,7 @@ from django.views import View
 from django.db    import transaction
 
 from user.models    import Administrator
-from product.models import ProductImage
+from product.models import ProductImage, Product
 from product.utils  import s3_client
 
 
@@ -18,6 +18,9 @@ class ProductImageView(View):
             data = request.POST
             print(f"data: {data}")
             product_id = data['product_id']
+
+            if not Product.objects.filter(id=product_id):
+                return JsonResponse({"MESSAGE": "PRODUCT NOT EXIST"}, status=400)
 
             product_images = request.FILES.getlist('product_image')
             for product_image in product_images:
@@ -48,6 +51,9 @@ class ProductImageView(View):
     #@signin_decorator
     def delete(self, request, product_image_id):
         try:
+            if not ProductImage.objects.filter(id=product_image_id):
+                return JsonResponse({"MESSAGE": "PRODUCT NOT EXIST"}, status=400)
+
             product_image = ProductImage.objects.get(id=product_image_id)
             filename = product_image.image_url.split('/rip-dev-bucket/')[1]
             response = s3_client.delete_object(
