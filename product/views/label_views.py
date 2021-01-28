@@ -24,8 +24,8 @@ class LabelView(View):
             if not Product.objects.filter(id=product_id):
                 return JsonResponse({"MESSAGE": "PRODUCT NOT EXIST"}, status=400)
 
-            label_ids = []
             labels = request.FILES.getlist('label')
+            label_ids = []
             for label in labels:
                 filename = str(uuid.uuid1()).replace('-', '')
                 response = s3_client.upload_fileobj(
@@ -55,9 +55,6 @@ class LabelView(View):
     #@signin_decorator
     def delete(self, request, label_id):
         try:
-            # if not Label.objects.filter(id=label_id):
-            #     return JsonResponse({"MESSAGE": "PRODUCT NOT EXIST"}, status=400)
-
             label = get_object_or_404(Label, id=label_id)
             filename = label.image_url.split('/rip-dev-bucket/')[1]
             response = s3_client.delete_object(
