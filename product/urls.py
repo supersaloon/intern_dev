@@ -6,6 +6,7 @@ from product.views.manufacture_views   import ManufactureView
 from product.views.category_list_views import CategoryListView
 from product.views.pre_info_list_views import PreInfoListView
 from product.views.product_image_views import ProductImageView
+from product.views.label_views         import LabelView
 
 
 
@@ -16,6 +17,9 @@ urlpatterns = [
 
     path('/image', ProductImageView.as_view()),
     path('/image/<int:product_image_id>', ProductImageView.as_view()),
+
+    path('/label', LabelView.as_view()),
+    path('/label/<int:label_id>', LabelView.as_view()),
 
     path('/manufacture', ManufactureView.as_view()),
     path('/manufacture/<int:manufacture_id>', ManufactureView.as_view()),

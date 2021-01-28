@@ -100,7 +100,7 @@ class IndustrialProductInfo(models.Model):
 
 class Label(models.Model):
     product   = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
-    label_url = models.URLField(max_length=2000)
+    image_url = models.URLField(max_length=2000)
 
     class Meta:
         db_table = 'labels'
