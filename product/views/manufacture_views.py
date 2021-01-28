@@ -49,6 +49,7 @@ class ManufactureView(View):
             manufacture = Manufacture.objects.select_related('manufacture_type').get(id=manufacture_id)
 
             manufacture_data = {
+                'id'                         : manufacture.id,
                 'manufacture_type'           : manufacture.manufacture_type.name,
                 'name'                       : manufacture.name,
                 'origin'                     : manufacture.origin,
