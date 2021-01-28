@@ -1,4 +1,3 @@
-import boto3
 import uuid
 import json
 
@@ -16,7 +15,8 @@ class ProductImageView(View):
     @transaction.atomic
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            data = request.POST
+            print(f"data: {data}")
             product_id = data['product_id']
 
             product_images = request.FILES.getlist('product_image')
