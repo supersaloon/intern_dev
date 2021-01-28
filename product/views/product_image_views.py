@@ -22,6 +22,7 @@ class ProductImageView(View):
             if not Product.objects.filter(id=product_id):
                 return JsonResponse({"MESSAGE": "PRODUCT NOT EXIST"}, status=400)
 
+            product_image_ids = []
             product_images = request.FILES.getlist('product_image')
             for product_image in product_images:
                 filename = str(uuid.uuid1()).replace('-', '')
@@ -35,12 +36,13 @@ class ProductImageView(View):
                 )
                 image_url = f"https://s3.ap-northeast-2.amazonaws.com/rip-dev-bucket/intern_dev/{filename}"
 
-                ProductImage.objects.create(
+                product_image = ProductImage.objects.create(
                     product_id = product_id,
                     image_url  = image_url,
                 )
+                product_image_ids.append(product_image.id)
 
-            return JsonResponse({'MESSAGE': 'SUCCESS'}, status=201)
+            return JsonResponse({'MESSAGE': 'SUCCESS', "product_image_ids": product_image_ids}, status=201)
 
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
