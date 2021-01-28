@@ -4,6 +4,8 @@ from django.http     import JsonResponse
 from django.views    import View
 from django.db       import transaction
 from django.db.utils import IntegrityError
+from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 from user.models    import Administrator
 from product.models import Manufacture, ManufactureType
@@ -46,7 +48,7 @@ class ManufactureView(View):
     @transaction.atomic
     def get(self, request, manufacture_id):
         try:
-            manufacture = Manufacture.objects.select_related('manufacture_type').get(id=manufacture_id)
+            manufacture = get_object_or_404(Manufacture, id=manufacture_id)
 
             manufacture_data = {
                 'id'                         : manufacture.id,
@@ -63,8 +65,8 @@ class ManufactureView(View):
 
             return JsonResponse({'MESSAGE': 'SUCCESS', 'manufacture_data': manufacture_data}, status=200)
 
-        except Manufacture.DoesNotExist as e:
-                return JsonResponse({"MESSAGE": e}, status=200)
+        except Http404 as e:
+                return JsonResponse({"MESSAGE": "MANUFACTURE NOT EXIST"}, status=400)
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
 
@@ -77,7 +79,7 @@ class ManufactureView(View):
 
             manufacture_type, flag = ManufactureType.objects.get_or_create(name=data['manufacture_type'])
 
-            manufacture = Manufacture.objects.get(id=manufacture_id)
+            manufacture = get_object_or_404(Manufacture, id=manufacture_id)
 
             manufacture.manufacture_type            = manufacture_type
             manufacture.name                        = data['manufacture_name']
@@ -91,11 +93,10 @@ class ManufactureView(View):
 
             manufacture.save()
 
-
             return JsonResponse({'MESSAGE': 'SUCCESS'}, status=200)
 
-        except Manufacture.DoesNotExist as e:
-            return JsonResponse({"MESSAGE": e.args[0]}, status=200)
+        except Http404 as e:
+                return JsonResponse({"MESSAGE": "MANUFACTURE NOT EXIST"}, status=400)
         except IntegrityError as e:
             return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
         except KeyError as e:
