@@ -77,9 +77,9 @@ class ManufactureView(View):
         try:
             data = json.loads(request.body)
 
-            manufacture_type, flag = ManufactureType.objects.get_or_create(name=data['manufacture_type'])
-
             manufacture = get_object_or_404(Manufacture, id=manufacture_id)
+
+            manufacture_type, flag = ManufactureType.objects.get_or_create(name=data['manufacture_type'])
 
             manufacture.manufacture_type            = manufacture_type
             manufacture.name                        = data['manufacture_name']
