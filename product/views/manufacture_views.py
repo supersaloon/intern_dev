@@ -106,12 +106,12 @@ class ManufactureView(View):
     #@signin_decorator
     def delete(self, request, manufacture_id):
         try:
-            manufacture = Manufacture.objects.get(id=manufacture_id)
+            manufacture = get_object_or_404(Manufacture, id=manufacture_id)
             manufacture.delete()
 
             return JsonResponse({'MESSAGE': 'SUCCESS'}, status=200)
 
-        except Manufacture.DoesNotExist as e:
-            return JsonResponse({"MESSAGE": e.args[0]}, status=200)
+        except Http404 as e:
+                return JsonResponse({"MESSAGE": "MANUFACTURE NOT EXIST"}, status=400)
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
