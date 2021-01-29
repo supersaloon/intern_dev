@@ -11,7 +11,9 @@ from django.http import Http404
 
 from user.models    import Administrator
 from product.models import ProductCategory, DrinkCategory, IndustrialProductInfo, Manufacture, ManufactureType, Volume, \
-                           Label, TasteMatrix, DrinkDetail, DrinkDetailVolume, Product, Tag, ProductImage, Paring, BaseMaterial
+                           Label, TasteMatrix, DrinkDetail, DrinkDetailVolume, Product, Tag, ProductImage, Paring, BaseMaterial, \
+                            ProductTag
+
 from product.utils import s3_client, reverse_foreign_key_finder
 
 
@@ -295,8 +297,8 @@ class DrinkView(View):
             product.is_damhwa_box    = data['is_damhwa_box']
             product.discount_rate    = data['discount_rate']
             product.award            = data['award']
-            # product.product_category = ProductCategory.objects.get(name=data['product_category']),
-            # product.manufacture      = Manufacture.objects.get(name=data['manufacture_name']),
+            product.product_category = ProductCategory.objects.get(name=data['product_category'])
+            product.manufacture      = Manufacture.objects.get(name=data['manufacture_name'])
             product.uploader         = Administrator.objects.get(name   = "homer")
             product.save()
 
@@ -316,66 +318,81 @@ class DrinkView(View):
             #     label.save()
             #
             #
-            # # products 테이블에 태그 추가
-            # for tag in data['tag']:
-            #     tag, flag = Tag.objects.get_or_create(name=tag)
-            #     product.product_tag.add(tag)
-            #     print(f"태그: {tag.name} 추가 완료")
+            # 삭제된 태그가 있는지 확인 -> 삭제되었으면 관계 끊기
+            # 삭제된 대그의 참조 횟수가 0인지 확인 -> 0이면 태그를 테이블에서 삭제
+            tags_to_delete = []
+
+            existing_tags = [tag.name for tag in product.product_tag.all()]
+            print("=============================")
+            print(existing_tags)  # ['휴가', '휴가', '혼맥', '치맥']
+            print("=============================")
+            # 기존 태그 확인
+            for tag in data['tag']:
+                print(f'tag: {tag}')
+                if tag in existing_tags:
+                    existing_tags.remove(tag)
+                    print(f'existing_tags: {existing_tags}')
+                # 신규 태그 추가
+                new_tag, flag = Tag.objects.get_or_create(name=tag)
+                product.product_tag.add(new_tag)
+                print(f"신규 태그: {new_tag.name} 추가 완료")
+
+            # 삭제된 태그 관계 제거
+            for tag in existing_tags:
+                product_tag_relation = ProductTag.objects.get(tag=Tag.objects.get(name=tag), product=product)
+                product_tag_relation.delete()
+
+
+
+
+            # tag 삭제 -> delete 로 날리면 중간테이블 ,tag 테이블에서 모두 날아감
 
 
             # industrial_product_infos 테이블
-            industrial_product_info = product.industrialproductinfo_set.all()[0]
-            industrial_product_info.food_type = data['food_type'],
-            print('hi')
-            raise ValueError
-            # business_name                  = data['business_name'],
-            # location                       = data['location'],
-            # shelf_life                     = data['shelf_life'],
-            # volume_by_packing              = data['volume_by_packing'],
-            # base_material_name_and_content = data['base_material_name_and_content'],
-            # nutrient                       = data['nutrient'],
-            # gmo                            = data['gmo'],
-            # import_declaration             = data['import_declaration'],
-            # industrial_product_info.save()
+            industrial_product_info.food_type                      = data['food_type']
+            industrial_product_info.business_name                  = data['business_name']
+            industrial_product_info.location                       = data['location']
+            industrial_product_info.shelf_life                     = data['shelf_life']
+            industrial_product_info.volume_by_packing              = data['volume_by_packing']
+            industrial_product_info.base_material_name_and_content = data['base_material_name_and_content']
+            industrial_product_info.nutrient                       = data['nutrient']
+            industrial_product_info.gmo                            = data['gmo']
+            industrial_product_info.import_declaration             = data['import_declaration']
+            industrial_product_info.save()
 
 
             # drink_category 테이블
-            # drink_category, flag = DrinkCategory.objects.get_or_create(name=data['drink_category'])
+            drink_category, flag = DrinkCategory.objects.get_or_create(name=data['drink_category'])
 
 
             # # drink_details 테이블
-            # drink_detail =DrinkDetail.objects.create(
-            #     product                 = product,
-            #     drink_category          = DrinkCategory.objects.get(name=data['drink_category']),
-            #     alcohol_content         = data['alcohol_content'],
-            #     fragrance               = data['fragrance'],
-            #     flavor                  = data['flavor'],
-            #     finish                  = data['finish'],
-            #     with_who                = data['with_who'],
-            #     what_situation          = data['what_situation'],
-            #     what_mood               = data['what_mood'],
-            #     what_profit             = data['what_profit'],
-            #     recommend_situation     = data['recommend_situation'],
-            #     recommend_eating_method = data['recommend_eating_method'],
-            #     additional_info         = data['additional_info'],
-            # )
-            #
-            #
-            # # taste_matrixs 테이블
-            # TasteMatrix.objects.create(
-            #     drink_detail = drink_detail,
-            #     body         = data['taste_body'] if data.get('taste_body') else 0,
-            #     acidity      = data['taste_acidity'] if data.get('taste_acidity') else 0,
-            #     sweetness    = data['taste_sweetness'] if data.get('taste_sweetness') else 0,
-            #     tannin       = data['taste_tannin'] if data.get('taste_tannin') else 0,
-            #     bitter       = data['taste_bitter'] if data.get('taste_bitter') else 0,
-            #     sparkling    = data['taste_sparkling'] if data.get('taste_sparkling') else 0,
-            #     light        = data['taste_light'] if data.get('taste_light') else 0,
-            #     turbidity    = data['taste_turbidity'] if data.get('taste_turbidity') else 0,
-            #     savory       = data['taste_savory'] if data.get('taste_savory') else 0,
-            #     gorgeous     = data['taste_gorgeous'] if data.get('taste_gorgeous') else 0,
-            #     spicy        = data['taste_spicy'] if data.get('taste_spicy') else 0,
-            # )
+            drink_detail.product                 = product
+            drink_detail.drink_category          = DrinkCategory.objects.get(name=data['drink_category'])
+            drink_detail.alcohol_content         = data['alcohol_content']
+            drink_detail.fragrance               = data['fragrance']
+            drink_detail.flavor                  = data['flavor']
+            drink_detail.finish                  = data['finish']
+            drink_detail.with_who                = data['with_who']
+            drink_detail.what_situation          = data['what_situation']
+            drink_detail.what_mood               = data['what_mood']
+            drink_detail.what_profit             = data['what_profit']
+            drink_detail.recommend_situation     = data['recommend_situation']
+            drink_detail.recommend_eating_method = data['recommend_eating_method']
+            drink_detail.additional_info         = data['additional_info']
+
+
+            # taste_matrixs 테이블
+            taste_matrix.body         = data['taste_body'] if data.get('taste_body') else 0
+            taste_matrix.acidity      = data['taste_acidity'] if data.get('taste_acidity') else 0
+            taste_matrix.sweetness    = data['taste_sweetness'] if data.get('taste_sweetness') else 0
+            taste_matrix.tannin       = data['taste_tannin'] if data.get('taste_tannin') else 0
+            taste_matrix.bitter       = data['taste_bitter'] if data.get('taste_bitter') else 0
+            taste_matrix.sparkling    = data['taste_sparkling'] if data.get('taste_sparkling') else 0
+            taste_matrix.light        = data['taste_light'] if data.get('taste_light') else 0
+            taste_matrix.turbidity    = data['taste_turbidity'] if data.get('taste_turbidity') else 0
+            taste_matrix.savory       = data['taste_savory'] if data.get('taste_savory') else 0
+            taste_matrix.gorgeous     = data['taste_gorgeous'] if data.get('taste_gorgeous') else 0
+            taste_matrix.spicy        = data['taste_spicy'] if data.get('taste_spicy') else 0
             #
             #
             # # parings 테이블
