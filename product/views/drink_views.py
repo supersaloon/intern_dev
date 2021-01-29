@@ -19,6 +19,7 @@ class DrinkView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
+
             # products 테이블
             product = Product.objects.create(
                 name             = data['product_name'],
@@ -33,10 +34,22 @@ class DrinkView(View):
                 uploader         = Administrator.objects.get(name   = "homer"),
             )
 
+            # product_image
+            for product_image_id in data['product_image']:
+                product_image = ProductImage.objects.get(id=product_image_id)
+                product_image.product = product
+                product_image.save()
+
+
+            # label
+            for label_id in data['label']:
+                label = Label.objects.get(id=label_id)
+                label.product = product
+                label.save()
+
 
             # products 테이블에 태그 추가
-            tags = data['tag']
-            for tag in tags:
+            for tag in data['tag']:
                 tag, flag = Tag.objects.get_or_create(name=tag)
                 product.product_tag.add(tag)
                 print(f"태그: {tag.name} 추가 완료")
@@ -81,45 +94,40 @@ class DrinkView(View):
 
             # taste_matrixs 테이블
             TasteMatrix.objects.create(
-                drink_detail = drink_detail,
-                taste_body         = data['body'] if data.get('body') else 0,
-                taste_acidity      = data['acidity'] if data.get('acidity') else 0,
-                taste_sweetness    = data['sweetness'] if data.get('sweetness') else 0,
-                taste_tannin       = data['tannin'] if data.get('tannin') else 0,
-                taste_bitter       = data['bitter'] if data.get('bitter') else 0,
-                taste_sparkling    = data['sparkling'] if data.get('sparkling') else 0,
-                taste_light        = data['light'] if data.get('light') else 0,
-                taste_turbidity    = data['turbidity'] if data.get('turbidity') else 0,
-                taste_savory       = data['savory'] if data.get('savory') else 0,
-                taste_gorgeous     = data['gorgeous'] if data.get('gorgeous') else 0,
-                taste_spicy        = data['spicy'] if data.get('spicy') else 0,
+                drink_detail       = drink_detail,
+                body         = data['taste_body'] if data.get('taste_body') else 0,
+                acidity      = data['taste_acidity'] if data.get('taste_acidity') else 0,
+                sweetness    = data['taste_sweetness'] if data.get('taste_sweetness') else 0,
+                tannin       = data['taste_tannin'] if data.get('taste_tannin') else 0,
+                bitter       = data['taste_bitter'] if data.get('taste_bitter') else 0,
+                sparkling    = data['taste_sparkling'] if data.get('taste_sparkling') else 0,
+                light        = data['taste_light'] if data.get('taste_light') else 0,
+                turbidity    = data['taste_turbidity'] if data.get('taste_turbidity') else 0,
+                savory       = data['taste_savory'] if data.get('taste_savory') else 0,
+                gorgeous     = data['taste_gorgeous'] if data.get('taste_gorgeous') else 0,
+                spicy        = data['taste_spicy'] if data.get('taste_spicy') else 0,
             )
 
 
             # parings 테이블
-            parings = data['paring']
-            for paring in parings:
+            for paring in data['paring']:
                 paring, flag = Paring.objects.get_or_create(
                     name        = paring['name'],
                     description = paring['description'],
                 )
                 drink_detail.drink_detail_paring.add(paring)
-                print(f"페어링: {paring.name}, 설명: {paring.description} 추가 완료")
 
 
             # base_materials 테이블
-            base_materials = data['base_material']
-            for base_material in base_materials:
+            for base_material in data['base_material']:
                 base_material, flag = BaseMaterial.objects.get_or_create(
                     name = base_material
                 )
                 drink_detail.drink_detail_base_material.add(base_material)
-                print(f"원재료: {base_material.name} 추가 완료")
 
 
             # DrinkDetailVolume 테이블
-            volume_and_prices = data['volume_and_price']
-            for volume_and_price in volume_and_prices:  # {"volume": "500ml", "price": "500"}
+            for volume_and_price in data['volume_and_price']:  # {"volume": "500ml", "price": "500"}
 
                 price = volume_and_price['price']
                 volume, flag = Volume.objects.get_or_create(name=volume_and_price['volume'])
@@ -260,7 +268,6 @@ class DrinkView(View):
                                                         "price"    : volume.price,
                 }for volume in product.drinkdetail_set.all()[0].drinkdetailvolume_set.all()]
             }
-
 
             return JsonResponse({'MESSAGE': 'SUCCESS', 'drink_data': drink_data}, status=200)
 
