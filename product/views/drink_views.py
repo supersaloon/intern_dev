@@ -10,7 +10,7 @@ from django.db.utils import IntegrityError
 from user.models    import Administrator
 from product.models import ProductCategory, DrinkCategory, IndustrialProductInfo, Manufacture, ManufactureType, Volume, \
                            Label, TasteMatrix, DrinkDetail, DrinkDetailVolume, Product, Tag, ProductImage, Paring, BaseMaterial
-from product.utils import s3_client
+from product.utils import s3_client, reverse_foreign_key_finder
 
 
 class DrinkView(View):
@@ -19,10 +19,6 @@ class DrinkView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
-            print(f'data: {data}')
-            print()
-            print()
-
             # products 테이블
             product = Product.objects.create(
                 name             = data['product_name'],
@@ -36,6 +32,7 @@ class DrinkView(View):
                 manufacture      = Manufacture.objects.get(name=data['manufacture_name']),
                 uploader         = Administrator.objects.get(name   = "homer"),
             )
+
 
             # products 테이블에 태그 추가
             tags = data['tag']
@@ -85,17 +82,17 @@ class DrinkView(View):
             # taste_matrixs 테이블
             TasteMatrix.objects.create(
                 drink_detail = drink_detail,
-                body         = data['body'] if data.get('body') else 0,
-                acidity      = data['acidity'] if data.get('acidity') else 0,
-                sweetness    = data['sweetness'] if data.get('sweetness') else 0,
-                tannin       = data['tannin'] if data.get('tannin') else 0,
-                bitter       = data['bitter'] if data.get('bitter') else 0,
-                sparkling    = data['sparkling'] if data.get('sparkling') else 0,
-                light        = data['light'] if data.get('light') else 0,
-                turbidity    = data['turbidity'] if data.get('turbidity') else 0,
-                savory       = data['savory'] if data.get('savory') else 0,
-                gorgeous     = data['gorgeous'] if data.get('gorgeous') else 0,
-                spicy        = data['spicy'] if data.get('spicy') else 0,
+                taste_body         = data['body'] if data.get('body') else 0,
+                taste_acidity      = data['acidity'] if data.get('acidity') else 0,
+                taste_sweetness    = data['sweetness'] if data.get('sweetness') else 0,
+                taste_tannin       = data['tannin'] if data.get('tannin') else 0,
+                taste_bitter       = data['bitter'] if data.get('bitter') else 0,
+                taste_sparkling    = data['sparkling'] if data.get('sparkling') else 0,
+                taste_light        = data['light'] if data.get('light') else 0,
+                taste_turbidity    = data['turbidity'] if data.get('turbidity') else 0,
+                taste_savory       = data['savory'] if data.get('savory') else 0,
+                taste_gorgeous     = data['gorgeous'] if data.get('gorgeous') else 0,
+                taste_spicy        = data['spicy'] if data.get('spicy') else 0,
             )
 
 
@@ -167,85 +164,107 @@ class DrinkView(View):
     @transaction.atomic
     def get(self, request, product_id):
         try:
+            product = (Product.objects
+                       .select_related('product_category', 'manufacture')
+                       .prefetch_related('product_tag',
+                                         'productimage_set',
+                                         'label_set',
+                                         'drinkdetail_set',
+                                         'drinkdetail_set__drink_category',
+                                         'drinkdetail_set__tastematrix_set',
+                                         'drinkdetail_set__drink_detail_paring',
+                                         'drinkdetail_set__drink_detail_base_material',
+                                         'drinkdetail_set__drinkdetailvolume_set',
+                                         'industrialproductinfo_set')
+                       .get(id=product_id))
 
-            product = Product.objects.get(product_id=product_id)
+            drink_data = {
+                "id"                            : product.id,
+                "product_category"              : product.product_category.name,
+
+                "drink_category"                : product.drinkdetail_set.all()[0].drink_category.name,
+
+                "product_image"                 : [{
+                                                        "id"       : product_image.id,
+                                                        "image_url": product_image.image_url,
+                }for product_image in product.productimage_set.all()],
+
+                "label"                         : [{
+                                                        "id"       : label.id,
+                                                        "image_url": label.image_url,
+                }for label in product.label_set.all()],
+
+                "manufacture_name"              : product.manufacture.name,
+                "product_name"                  : product.name,
+                "subtitle"                      : product.subtitle,
+                "price"                         : product.price,
+                "content"                       : product.content,
+                "is_damhwa_box"                 : product.is_damhwa_box,
+                "discount_rate"                 : product.discount_rate,
+                "award"                         : product.award,
+
+                "tag"                           : [{
+                                                        "id"  : tag.id,
+                                                        "name": tag.name,
+                }for tag in product.product_tag.all()],
+
+                "food_type"                     : product.industrialproductinfo_set.all()[0].food_type,
+                "business_name"                 : product.industrialproductinfo_set.all()[0].business_name,
+                "location"                      : product.industrialproductinfo_set.all()[0].location,
+                "shelf_life"                    : product.industrialproductinfo_set.all()[0].shelf_life,
+                "volume_by_packing"             : product.industrialproductinfo_set.all()[0].volume_by_packing,
+                "base_material_name_and_content": product.industrialproductinfo_set.all()[0].base_material_name_and_content,
+                "nutrient"                      : product.industrialproductinfo_set.all()[0].nutrient,
+                "gmo"                           : product.industrialproductinfo_set.all()[0].gmo,
+                "import_declaration"            : product.industrialproductinfo_set.all()[0].import_declaration,
+
+                "alcohol_content"               : product.drinkdetail_set.all()[0].alcohol_content,
+                "fragrance"                     : product.drinkdetail_set.all()[0].fragrance,
+                "flavor"                        : product.drinkdetail_set.all()[0].flavor,
+                "finish"                        : product.drinkdetail_set.all()[0].finish,
+                "with_who"                      : product.drinkdetail_set.all()[0].with_who,
+                "what_situation"                : product.drinkdetail_set.all()[0].what_situation,
+                "what_mood"                     : product.drinkdetail_set.all()[0].what_mood,
+                "what_profit"                   : product.drinkdetail_set.all()[0].what_profit,
+                "recommend_situation"           : product.drinkdetail_set.all()[0].recommend_situation,
+                "recommend_eating_method"       : product.drinkdetail_set.all()[0].recommend_eating_method,
+                "additional_info"               : product.drinkdetail_set.all()[0].additional_info,
+
+                "taste_body"                    : product.drinkdetail_set.all()[0].tastematrix_set.all()[0].body,
+                "taste_acidity"                 : product.drinkdetail_set.all()[0].tastematrix_set.all()[0].acidity,
+                "taste_sweetness"               : product.drinkdetail_set.all()[0].tastematrix_set.all()[0].sweetness,
+                "taste_tannin"                  : product.drinkdetail_set.all()[0].tastematrix_set.all()[0].tannin,
+                "taste_bitter"                  : product.drinkdetail_set.all()[0].tastematrix_set.all()[0].bitter,
+                "taste_sparkling"               : product.drinkdetail_set.all()[0].tastematrix_set.all()[0].sparkling,
+                "taste_light"                   : product.drinkdetail_set.all()[0].tastematrix_set.all()[0].light,
+                "taste_turbidity"               : product.drinkdetail_set.all()[0].tastematrix_set.all()[0].turbidity,
+                "taste_savory"                  : product.drinkdetail_set.all()[0].tastematrix_set.all()[0].savory,
+                "taste_gorgeous"                : product.drinkdetail_set.all()[0].tastematrix_set.all()[0].gorgeous,
+                "taste_spicy"                   : product.drinkdetail_set.all()[0].tastematrix_set.all()[0].spicy,
+
+                "paring"                        : [{
+                                                        "id"         : paring.id,
+                                                        "name"       : paring.name,
+                                                        "description": paring.description,
+                }for paring in product.drinkdetail_set.all()[0].drink_detail_paring.all()],
+
+                "base_material"                 : [{
+                                                        "id"  : base_material.id,
+                                                        "name": base_material.name,
+                }for base_material in product.drinkdetail_set.all()[0].drink_detail_base_material.all()],
 
 
-            # drink_data = {
-            #     product_category =
-            #     manufacture_type
-            #     manufacture_name
-            #     origin
-            #     representative_name
-            #     email
-            #     phone_number
-            #     address
-            #     company_registration_number
-            #     mail_order_report_number
-            #
-            #     product_name
-            #     subtitle
-            #     price
-            #     content
-            #     is_damhwa_box
-            #     discount_rate
-            #     award
-            #
-            #     tag
-            #
-            #     product_image
-            #
-            #     label
-            #
-            #     food_type
-            #     business_name
-            #     location
-            #     shelf_life
-            #     volume_by_packing
-            #     base_material_name_and_content
-            #     nutrient
-            #     gmo
-            #     import_declaration
-            #
-            #     drink_category
-            #
-            #     alcohol_content
-            #     fragrance  # 향
-            #     flavor  # 맛
-            #     finish  # 피니시
-            #     with_who  # 누구와?
-            #     what_situation  # 어느 상황에?
-            #     what_mood  # 어떤 기분에?
-            #     what_profit  # 좋은 점은?
-            #     recommend_situation  # 맛+어울리는 상황
-            #     recommend_eating_method  # 추천 안주 및 음용방법
-            #     additional_info  # 기타정보
-            #
-            #     body  # 바디감
-            #     acidity  # 산미
-            #     sweetness  # 단맛
-            #     tannin  # 타닌
-            #     bitter  # 쓴맛
-            #     sparkling  # 탄산감
-            #     light  # 담백
-            #     turbidity  # 탁도
-            #     savory  # 풍미
-            #     gorgeous  # 화려
-            #     spicy  # 매운맛
-            #
-            #     paring
-            #
-            #     base_material
-            #
-            #     volume_and_price
-            #
-            # }
+                "volume_and_price"              : [{
+                                                        "id": volume.volume.id,
+                                                        "volume"   : volume.volume.name,
+                                                        "price"    : volume.price,
+                }for volume in product.drinkdetail_set.all()[0].drinkdetailvolume_set.all()]
+            }
 
 
+            return JsonResponse({'MESSAGE': 'SUCCESS', 'drink_data': drink_data}, status=200)
 
-            return JsonResponse({'MESSAGE': 'SUCCESS'}, status=201)
-
-        except IntegrityError as e:
-            return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
+        except Exception as e:
+            return JsonResponse({"MESSAGE": "Exception => " + e.args[0]}, status=400)
