@@ -19,10 +19,11 @@ class LabelView(View):
     def post(self, request):
         try:
             data = request.POST
-            product_id = data['product_id']
+            product_id = data.get('product_id') if data.get('product_id') else None
 
-            if not Product.objects.filter(id=product_id):
-                return JsonResponse({"MESSAGE": "PRODUCT NOT EXIST"}, status=400)
+            if product_id:
+                if not Product.objects.filter(id=product_id):
+                    return JsonResponse({"MESSAGE": "PRODUCT NOT EXIST"}, status=400)
 
             labels = request.FILES.getlist('label')
             label_ids = []
