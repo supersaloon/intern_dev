@@ -109,7 +109,6 @@ class Label(models.Model):
 # 페어링
 class Paring(models.Model):
     name        = models.CharField(max_length=45)
-    description = models.TextField(null=True)
 
     class Meta:
         db_table = 'parings'

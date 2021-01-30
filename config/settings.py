@@ -151,72 +151,72 @@ CORS_ALLOW_HEADERS = (
 
 
 # 로깅 설정
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
-        },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
-    'formatters': {
-        'django.server': {
-            '()': 'django.utils.log.ServerFormatter',
-            'format': '[{server_time}] {message}',
-            'style': '{',
-        },
-        'standard': {
-            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            # 'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-        },
-        'django.server': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'django.server',
-        },
-        'file': {
-            'level': 'DEBUG',  # 로그 레벨 INFO
-            # 'filters': ['require_debug_false'],  # DEBUG=False 인 환경에서 사용
-            # ▼ maxBytes 크기까지 로그 파일을 찍고 더 커지면 새로 만드는데, 총 backupCount 갯수만큼 로그 파일 생성, 초과분은 삭제
-
-            'class': 'logging.handlers.RotatingFileHandler',    # 파일 핸들러로 RotatingFileHandler 사용
-
-            'filename': 'logs/mylog.log',  # 로그파일(경로포함)명
-            'maxBytes': 1024*1024*10,  # 10 MB  # 각 로그 파일의 크기를 10 MB 로 제한
-            'backupCount': 10,  # Rolling 되는 로그 파일 갯수를 10개로 설정
-            'formatter': 'standard',  # 포맷터는 standard 사용
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'file'],
-            'level': 'INFO',
-        },
-        'django.server': {
-            'handlers': ['console', 'django.server', 'file'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-        'django.db.backends' : {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-            'propagate' : False,
-        },
-        'django.request': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-            'propagate' : False,
-        },
-    }
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'filters': {
+#         'require_debug_false': {
+#             '()': 'django.utils.log.RequireDebugFalse',
+#         },
+#         'require_debug_true': {
+#             '()': 'django.utils.log.RequireDebugTrue',
+#         },
+#     },
+#     'formatters': {
+#         'django.server': {
+#             '()': 'django.utils.log.ServerFormatter',
+#             'format': '[{server_time}] {message}',
+#             'style': '{',
+#         },
+#         'standard': {
+#             'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+#         },
+#     },
+#     'handlers': {
+#         'console': {
+#             'level': 'DEBUG',
+#             # 'filters': ['require_debug_true'],
+#             'class': 'logging.StreamHandler',
+#         },
+#         'django.server': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'django.server',
+#         },
+#         'file': {
+#             'level': 'DEBUG',  # 로그 레벨 INFO
+#             # 'filters': ['require_debug_false'],  # DEBUG=False 인 환경에서 사용
+#             # ▼ maxBytes 크기까지 로그 파일을 찍고 더 커지면 새로 만드는데, 총 backupCount 갯수만큼 로그 파일 생성, 초과분은 삭제
+#
+#             'class': 'logging.handlers.RotatingFileHandler',    # 파일 핸들러로 RotatingFileHandler 사용
+#
+#             'filename': 'logs/mylog.log',  # 로그파일(경로포함)명
+#             'maxBytes': 1024*1024*10,  # 10 MB  # 각 로그 파일의 크기를 10 MB 로 제한
+#             'backupCount': 10,  # Rolling 되는 로그 파일 갯수를 10개로 설정
+#             'formatter': 'standard',  # 포맷터는 standard 사용
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console', 'file'],
+#             'level': 'INFO',
+#         },
+#         'django.server': {
+#             'handlers': ['console', 'django.server', 'file'],
+#             'level': 'DEBUG',
+#             'propagate': False,
+#         },
+#         'django.db.backends' : {
+#             'handlers': ['console', 'file'],
+#             'level': 'DEBUG',
+#             'propagate' : False,
+#         },
+#         'django.request': {
+#             'handlers': ['console', 'file'],
+#             'level': 'DEBUG',
+#             'propagate' : False,
+#         },
+#     }
+# }
 
 # REQUEST_LOGGING_ENABLE_COLORIZE=False  # django.request 로그 색 설정

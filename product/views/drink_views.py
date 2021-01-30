@@ -8,11 +8,12 @@ from django.db    import transaction
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from django.core.exceptions import ObjectDoesNotExist
 
 from user.models    import Administrator
 from product.models import ProductCategory, DrinkCategory, IndustrialProductInfo, Manufacture, ManufactureType, Volume, \
                            Label, TasteMatrix, DrinkDetail, DrinkDetailVolume, Product, Tag, ProductImage, Paring, BaseMaterial, \
-                            ProductTag
+                            ProductTag, DrinkDetailParing, DrinkDetailBaseMaterial
 
 from product.utils import s3_client, reverse_foreign_key_finder
 
@@ -117,8 +118,7 @@ class DrinkView(View):
             # parings 테이블
             for paring in data['paring']:
                 paring, flag = Paring.objects.get_or_create(
-                    name        = paring['name'],
-                    description = paring['description'],
+                    name = paring,
                 )
                 drink_detail.drink_detail_paring.add(paring)
 
@@ -134,7 +134,7 @@ class DrinkView(View):
             # DrinkDetailVolume 테이블
             for volume_and_price in data['volume_and_price']:  # {"volume": "500ml", "price": "500"}
 
-                price = volume_and_price['price']
+                price        = volume_and_price['price']
                 volume, flag = Volume.objects.get_or_create(name=volume_and_price['volume'])
 
                 DrinkDetailVolume.objects.get_or_create(
@@ -253,7 +253,6 @@ class DrinkView(View):
                 "paring"                        : [{
                                                         "id"         : paring.id,
                                                         "name"       : paring.name,
-                                                        "description": paring.description,
                 }for paring in drink_detail.drink_detail_paring.all()],
 
                 "base_material"                 : [{
@@ -309,43 +308,122 @@ class DrinkView(View):
             #     product_image = ProductImage.objects.get(id=product_image_id)
             #     product_image.product = product
             #     product_image.save()
-            #
-            #
-            # # label
-            # for label_id in data['label']:
-            #     label = Label.objects.get(id=label_id)
-            #     label.product = product
-            #     label.save()
-            #
-            #
-            # 삭제된 태그가 있는지 확인 -> 삭제되었으면 관계 끊기
-            # 삭제된 대그의 참조 횟수가 0인지 확인 -> 0이면 태그를 테이블에서 삭제
-            tags_to_delete = []
 
-            existing_tags = [tag.name for tag in product.product_tag.all()]
-            print("=============================")
-            print(existing_tags)  # ['휴가', '휴가', '혼맥', '치맥']
-            print("=============================")
-            # 기존 태그 확인
+            # product_image
+            for product_image in data['product_image']:
+                # 사용자가 추가한 이미지를 상품에 연결
+                if product_image['status'] == "add":
+                    new_product_image = ProductImage.objects.get(id=product_image['id'])
+                    new_product_image.product = product
+                    new_product_image.save()
+                    print(f"신규 이미지: {new_product_image.id} 추가 완료")
+
+
+            for label in data['label']:
+                # 사용자가 추가한 이미지를 상품에 연결
+                if label['status'] == "add":
+                    new_label = Label.objects.get(id=label['id'])
+                    new_label.product = product
+                    new_label.save()
+                    print(f"신규 라벨: {new_label.id} 추가 완료")
+
+
+            # tag
             for tag in data['tag']:
-                print(f'tag: {tag}')
-                if tag in existing_tags:
-                    existing_tags.remove(tag)
-                    print(f'existing_tags: {existing_tags}')
-                # 신규 태그 추가
-                new_tag, flag = Tag.objects.get_or_create(name=tag)
-                product.product_tag.add(new_tag)
-                print(f"신규 태그: {new_tag.name} 추가 완료")
+                # 사용자가 추가한 태그를 추가
+                if tag['status'] == "add":
+                    new_tag, flag = Tag.objects.get_or_create(name=tag['name'])
+                    product.product_tag.add(new_tag)
+                    print(f"신규 태그: {new_tag.name} 추가 완료")
+                # 사용자가 삭제한 태그를 삭제
+                elif tag['status'] == "delete":
+                    tag_to_disconnect    = Tag.objects.get(id=tag['id'], name=tag['name'])
+                    product_tag_relation = ProductTag.objects.get(tag=tag_to_disconnect, product=product)
+                    product_tag_relation.delete()
+                    print(f"태그: {tag_to_disconnect.name} 삭제 완료")
 
-            # 삭제된 태그 관계 제거
-            for tag in existing_tags:
-                product_tag_relation = ProductTag.objects.get(tag=Tag.objects.get(name=tag), product=product)
-                product_tag_relation.delete()
+                    # 상품과 관계가 제거된 태그의 참조횟수가 0이면 태그 삭제
+                    tag_ref_count = ProductTag.objects.filter(tag=tag_to_disconnect).count()
+                    print(f'>>>>> ref count of {tag_to_disconnect} is {tag_ref_count}')
+                    if tag_ref_count == 0:
+                        tag_to_disconnect.delete()
+
+            # base_material
+            for base_material in data['base_material']:
+                # 사용자가 추가한 원재료를 추가
+                if base_material['status'] == "add":
+                    new_base_material, flag = BaseMaterial.objects.get_or_create(name=base_material['name'])
+                    drink_detail.drink_detail_base_material.add(new_base_material)
+                    print(f"신규 원재료: {new_base_material.name} 추가 완료")
+                # 사용자가 삭제한 원재료를 삭제
+                elif base_material['status'] == "delete":
+                    base_material_to_disconnect = BaseMaterial.objects.get(id=base_material['id'], name=base_material['name'])
+                    drink_detail_base_material_relation = DrinkDetailBaseMaterial.objects.get(
+                        base_material=base_material_to_disconnect,
+                        drink_detail=drink_detail)
+                    drink_detail_base_material_relation.delete()
+                    print(f"원재료: {base_material_to_disconnect.name} 삭제 완료")
+
+                    # 음료 상세와 관계가 제거된 원재료의 참조횟수가 0이면 원재료 삭제
+                    base_material_ref_count = DrinkDetailBaseMaterial.objects.filter(base_material=base_material_to_disconnect).count()
+                    print(f'>>>>> ref count of {base_material_to_disconnect.name} is {base_material_ref_count}')
+                    if base_material_ref_count == 0:
+                        base_material_to_disconnect.delete()
+
+            # paring
+            for paring in data['paring']:
+                # 사용자가 추가한 페어링을 추가
+                if paring['status'] == "add":
+                    new_paring, flag = Paring.objects.get_or_create(name=paring['name'])
+                    drink_detail.drink_detail_paring.add(new_paring)
+                    print(f"신규 페어링: {new_paring.name} 추가 완료")
+                # 사용자가 삭제한 페어링을 삭제
+                elif paring['status'] == "delete":
+                    paring_to_disconnect         = Paring.objects.get(id=paring['id'], name=paring['name'])
+                    drink_detail_paring_relation = DrinkDetailParing.objects.get(paring=paring_to_disconnect, drink_detail=drink_detail)
+                    drink_detail_paring_relation.delete()
+                    print(f"페어링: {paring_to_disconnect.name} 삭제 완료")
+
+                    # 음료 상세와 관계가 제거된 페어링의 참조횟수가 0이면 페어링 삭제
+                    paring_ref_count = DrinkDetailParing.objects.filter(paring=paring_to_disconnect).count()
+                    print(f'>>>>> ref count of {paring_to_disconnect} is {paring_ref_count}')
+                    if paring_ref_count == 0:
+                        paring_to_disconnect.delete()
+
+            # volume and price
+            for volume_and_price in data['volume_and_price']:
+                # 사용자가 추가한 용량을 추가
+                if volume_and_price['status'] == "add":
+                    new_volume, flag = Volume.objects.get_or_create(name=volume_and_price['volume'])
+                    DrinkDetailVolume.objects.create(
+                        drink_detail = drink_detail,
+                        volume       = new_volume,
+                        price        = volume_and_price['price']
+                    )
+                    print(f"신규 용량: {new_volume.name} 추가 완료")
+
+                # 사용자가 삭제한 용량을 삭제한 경우
+                elif volume_and_price['status'] == "delete":
+                    volume = Volume.objects.get(id=volume_and_price['id'], name=volume_and_price['volume'])
+                    drink_detail_volume_relation = DrinkDetailVolume.objects.get(volume=volume, drink_detail=drink_detail)
+                    drink_detail_volume_relation.delete()
+                    print(f"용량: {volume.name} 삭제 완료")
+
+                    # 음료 상세와 관계가 제거된 용량의 참조횟수가 0이면 용량 삭제
+                    volume_ref_count = DrinkDetailVolume.objects.filter(volume=volume).count()
+                    print(f'>>>>> ref count of {volume} is {volume_ref_count}')
+                    if volume_ref_count == 0:
+                        volume.delete()
+
+                elif volume_and_price['status'] == "normal":
+                    # 신규 또는 삭제가 아닌 경우 -> price 덮어쓰기
+                    volume = Volume.objects.get(id=volume_and_price['id'], name=volume_and_price['volume'])
+                    drink_detail_volume_relation = DrinkDetailVolume.objects.get(volume=volume, drink_detail=drink_detail)
+                    drink_detail_volume_relation.price = volume_and_price['price']
+                    drink_detail_volume_relation.save()
 
 
 
-
-            # tag 삭제 -> delete 로 날리면 중간테이블 ,tag 테이블에서 모두 날아감
 
 
             # industrial_product_infos 테이블
@@ -393,23 +471,43 @@ class DrinkView(View):
             taste_matrix.savory       = data['taste_savory'] if data.get('taste_savory') else 0
             taste_matrix.gorgeous     = data['taste_gorgeous'] if data.get('taste_gorgeous') else 0
             taste_matrix.spicy        = data['taste_spicy'] if data.get('taste_spicy') else 0
-            #
-            #
-            # # parings 테이블
+
+            # parings 테이블
+            # 기존 페어링 확인
+            # existing_parings = [paring.name for paring in  drink_detail.drink_detail_paring.all()]
             # for paring in data['paring']:
-            #     paring, flag = Paring.objects.get_or_create(
-            #         name        = paring['name'],
-            #         description = paring['description'],
-            #     )
-            #     drink_detail.drink_detail_paring.add(paring)
+            #     print(f'new parging {paring}')
+            #     if paring in existing_tags:
+            #         existing_tags.remove(paring)
             #
+            #     # 사용자가 새롭게 입력한 신규 페어링 추가
+            #     new_paring, flag = Paring.objects.get_or_create(name=paring)
+            #     drink_detail.drink_detail_paring.add(new_paring)
+            #     print(f"신규 페어링: {new_paring.name} 추가 완료")
             #
-            # # base_materials 테이블
-            # for base_material in data['base_material']:
-            #     base_material, flag = BaseMaterial.objects.get_or_create(
-            #         name = base_material
-            #     )
-            #     drink_detail.drink_detail_base_material.add(base_material)
+            # # 삭제된 페어링 관계 제거
+            # print(f'existing_parings_to_delete: {existing_parings}')
+            # for paring in existing_parings:
+            #     paring_to_disconnect = Paring.objects.get(name=paring)
+            #     drink_detail_paring_relation = DrinkDetailParing.get(paring=paring_to_disconnect, drink_detail=drink_detail)
+            #     drink_detail_paring_relation.delete()
+            #
+            #     # 관계가 삭제된 페어링 중 참조된 횟수가 0인 페어링은 삭제
+            #     paring_ref_count = DrinkDetailParing.objects.filter(paring_id=paring_to_disconnect).count()
+            #     print(f'>>>>> ref count of {paring_to_disconnect} is {paring_ref_count}')
+            #     if paring_ref_count == 0:
+            #         paring_to_disconnect.delete()
+
+
+
+                # paring, flag = Paring.objects.get_or_create(
+                #     name        = paring['name'],
+                #     description = paring['description'],
+                # )
+                # drink_detail.drink_detail_paring.add(paring)
+
+
+
             #
             #
             # # DrinkDetailVolume 테이블
@@ -426,9 +524,11 @@ class DrinkView(View):
 
             return JsonResponse({'MESSAGE': 'SUCCESS', 'product_id': product.id}, status=201)
 
-        except IntegrityError as e:
-            return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
+        # except IntegrityError as e:
+        #     return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
-        except Exception as e:
-            return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
+        # except ValueError as e:
+        #     return JsonResponse({"MESSAGE": "VALUE_ERROR => " + e.args[0]}, status=400)
+        except ObjectDoesNotExist as e:
+            return JsonResponse({"MESSAGE": "ObjectDoesNotExist => " + e.args[0]}, status=400)
