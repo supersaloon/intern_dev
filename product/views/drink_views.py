@@ -42,14 +42,14 @@ class DrinkView(View):
             # product_image
             for product_image_id in data['product_image']:
                 # product_image 에 빈 스트링이 들어오면 for 문 안쪽의 코드가 실행되지 않음
-                product_image = ProductImage.objects.get(id=product_image_id)
+                product_image         = ProductImage.objects.get(id = product_image_id)
                 product_image.product = product
                 product_image.save()
 
 
             # label
             for label_id in data['label']:
-                label = Label.objects.get(id=label_id)
+                label         = Label.objects.get(id = label_id)
                 label.product = product
                 label.save()
 
@@ -156,6 +156,7 @@ class DrinkView(View):
     #@signin_decorator
     def delete(self, request, product_id):
         try:
+            # 상품 이미지 삭제
             product_images = ProductImage.objects.filter(product_id=product_id)
             for product_image in product_images:
                 filename = product_image.image_url.split('/rip-dev-bucket/')[1]
@@ -165,6 +166,17 @@ class DrinkView(View):
                 )
                 print(f"response: {response}")
 
+            # 상품 라벨 삭제
+            labels = Label.objects.filter(product_id=product_id)
+            for label in labels:
+                filename = label.image_url.split('/rip-dev-bucket/')[1]
+                response = s3_client.delete_object(
+                    Bucket = "rip-dev-bucket",
+                    Key    = filename,
+                )
+                print(f"response: {response}")
+
+            # 상품 삭제
             product = Product.objects.get(id=product_id)
             product.delete()
 
@@ -282,6 +294,7 @@ class DrinkView(View):
         try:
             data = json.loads(request.body)
 
+            drink_category, flag = DrinkCategory.objects.get_or_create(name=data['drink_category'])
             product                 = Product.objects.get(id=product_id)
             drink_detail            = (DrinkDetail.objects
                                          .prefetch_related("drinkdetailvolume_set__volume")
@@ -301,13 +314,6 @@ class DrinkView(View):
             product.uploader         = Administrator.objects.get(name   = "homer")
             product.save()
 
-
-            # # product_image
-            # for product_image_id in data['product_image']:
-            #     # product_image 에 빈 스트링이 들어오면 for 문 안쪽의 코드가 실행되지 않음
-            #     product_image = ProductImage.objects.get(id=product_image_id)
-            #     product_image.product = product
-            #     product_image.save()
 
             # product_image
             for product_image in data['product_image']:
@@ -348,6 +354,7 @@ class DrinkView(View):
                     if tag_ref_count == 0:
                         tag_to_disconnect.delete()
 
+
             # base_material
             for base_material in data['base_material']:
                 # 사용자가 추가한 원재료를 추가
@@ -370,6 +377,7 @@ class DrinkView(View):
                     if base_material_ref_count == 0:
                         base_material_to_disconnect.delete()
 
+
             # paring
             for paring in data['paring']:
                 # 사용자가 추가한 페어링을 추가
@@ -389,6 +397,7 @@ class DrinkView(View):
                     print(f'>>>>> ref count of {paring_to_disconnect} is {paring_ref_count}')
                     if paring_ref_count == 0:
                         paring_to_disconnect.delete()
+
 
             # volume and price
             for volume_and_price in data['volume_and_price']:
@@ -423,9 +432,6 @@ class DrinkView(View):
                     drink_detail_volume_relation.save()
 
 
-
-
-
             # industrial_product_infos 테이블
             industrial_product_info.food_type                      = data['food_type']
             industrial_product_info.business_name                  = data['business_name']
@@ -437,10 +443,6 @@ class DrinkView(View):
             industrial_product_info.gmo                            = data['gmo']
             industrial_product_info.import_declaration             = data['import_declaration']
             industrial_product_info.save()
-
-
-            # drink_category 테이블
-            drink_category, flag = DrinkCategory.objects.get_or_create(name=data['drink_category'])
 
 
             # # drink_details 테이블
@@ -457,6 +459,7 @@ class DrinkView(View):
             drink_detail.recommend_situation     = data['recommend_situation']
             drink_detail.recommend_eating_method = data['recommend_eating_method']
             drink_detail.additional_info         = data['additional_info']
+            drink_detail.save()
 
 
             # taste_matrixs 테이블
@@ -471,64 +474,16 @@ class DrinkView(View):
             taste_matrix.savory       = data['taste_savory'] if data.get('taste_savory') else 0
             taste_matrix.gorgeous     = data['taste_gorgeous'] if data.get('taste_gorgeous') else 0
             taste_matrix.spicy        = data['taste_spicy'] if data.get('taste_spicy') else 0
+            taste_matrix.save()
 
-            # parings 테이블
-            # 기존 페어링 확인
-            # existing_parings = [paring.name for paring in  drink_detail.drink_detail_paring.all()]
-            # for paring in data['paring']:
-            #     print(f'new parging {paring}')
-            #     if paring in existing_tags:
-            #         existing_tags.remove(paring)
-            #
-            #     # 사용자가 새롭게 입력한 신규 페어링 추가
-            #     new_paring, flag = Paring.objects.get_or_create(name=paring)
-            #     drink_detail.drink_detail_paring.add(new_paring)
-            #     print(f"신규 페어링: {new_paring.name} 추가 완료")
-            #
-            # # 삭제된 페어링 관계 제거
-            # print(f'existing_parings_to_delete: {existing_parings}')
-            # for paring in existing_parings:
-            #     paring_to_disconnect = Paring.objects.get(name=paring)
-            #     drink_detail_paring_relation = DrinkDetailParing.get(paring=paring_to_disconnect, drink_detail=drink_detail)
-            #     drink_detail_paring_relation.delete()
-            #
-            #     # 관계가 삭제된 페어링 중 참조된 횟수가 0인 페어링은 삭제
-            #     paring_ref_count = DrinkDetailParing.objects.filter(paring_id=paring_to_disconnect).count()
-            #     print(f'>>>>> ref count of {paring_to_disconnect} is {paring_ref_count}')
-            #     if paring_ref_count == 0:
-            #         paring_to_disconnect.delete()
-
-
-
-                # paring, flag = Paring.objects.get_or_create(
-                #     name        = paring['name'],
-                #     description = paring['description'],
-                # )
-                # drink_detail.drink_detail_paring.add(paring)
-
-
-
-            #
-            #
-            # # DrinkDetailVolume 테이블
-            # for volume_and_price in data['volume_and_price']:  # {"volume": "500ml", "price": "500"}
-            #
-            #     price = volume_and_price['price']
-            #     volume, flag = Volume.objects.get_or_create(name=volume_and_price['volume'])
-            #
-            #     DrinkDetailVolume.objects.get_or_create(
-            #         drink_detail = drink_detail,
-            #         volume       = volume,
-            #         price        = price,
-            #     )
 
             return JsonResponse({'MESSAGE': 'SUCCESS', 'product_id': product.id}, status=201)
 
-        # except IntegrityError as e:
-        #     return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
+        except IntegrityError as e:
+            return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
-        # except ValueError as e:
-        #     return JsonResponse({"MESSAGE": "VALUE_ERROR => " + e.args[0]}, status=400)
+        except ValueError as e:
+            return JsonResponse({"MESSAGE": "VALUE_ERROR => " + e.args[0]}, status=400)
         except ObjectDoesNotExist as e:
             return JsonResponse({"MESSAGE": "ObjectDoesNotExist => " + e.args[0]}, status=400)
