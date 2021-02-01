@@ -12,7 +12,6 @@ from product.models import Manufacture, ManufactureType
 
 
 class ManufactureView(View):
-    # @signin_decorator
     @transaction.atomic
     def post(self, request):
         try:
@@ -44,8 +43,6 @@ class ManufactureView(View):
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
 
 
-    # @signin_decorator
-    @transaction.atomic
     def get(self, request, manufacture_id):
         try:
             manufacture = get_object_or_404(Manufacture, id=manufacture_id)
@@ -77,9 +74,9 @@ class ManufactureView(View):
         try:
             data = json.loads(request.body)
 
-            manufacture = get_object_or_404(Manufacture, id=manufacture_id)
-
             manufacture_type, flag = ManufactureType.objects.get_or_create(name=data['manufacture_type'])
+
+            manufacture = get_object_or_404(Manufacture, id=manufacture_id)
 
             manufacture.manufacture_type            = manufacture_type
             manufacture.name                        = data['manufacture_name']
@@ -103,7 +100,6 @@ class ManufactureView(View):
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
 
 
-    #@signin_decorator
     def delete(self, request, manufacture_id):
         try:
             manufacture = get_object_or_404(Manufacture, id=manufacture_id)
