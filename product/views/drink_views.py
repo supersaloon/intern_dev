@@ -40,7 +40,7 @@ class DrinkView(View):
             )
 
             # product_image
-            for product_image_id in data['product_image']:
+            for product_image_id in data.get('product_image'):
                 # product_image 에 빈 스트링이 들어오면 for 문 안쪽의 코드가 실행되지 않음
                 product_image         = ProductImage.objects.get(id = product_image_id)
                 product_image.product = product
@@ -48,7 +48,7 @@ class DrinkView(View):
 
 
             # label
-            for label_id in data['label']:
+            for label_id in data.get('label'):
                 label         = Label.objects.get(id = label_id)
                 label.product = product
                 label.save()
