@@ -37,6 +37,10 @@ class DrinkListView(View):
                             .order_by('-created_at')
                             )[offset:limit]
 
+            for product in products:
+                print(product.id)
+                print(product.drinkdetail_set.all())
+
             drink_data = [{
                 'id' : product.id,
                 'product_image'   : [{
@@ -44,7 +48,7 @@ class DrinkListView(View):
                     'image_url'   : product_image.image_url,
                 }for product_image in product.productimage_set.all()],
                 'product_category': product.product_category.name,
-                'drink_category'  : product.drinkdetail_set.all()[0].drink_category.name,
+                'drink_category'  : product.drinkdetail_set.all()[0].drink_category.name if len(product.drinkdetail_set.all()) == 1 else None,
                 'brewery'         : product.manufacture.name,
                 'product_name'    : product.name,
                 'price'           : product.price,
