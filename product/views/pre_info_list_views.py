@@ -23,9 +23,9 @@ class PreInfoListView(View):
                     'drink_category': drink_category.name,
                 } for drink_category in DrinkCategory.objects.all()],
 
-                'company_name': [{
+                'manufacture_name': [{
                     'id': brewery.id,
-                    'company_name': brewery.name,
+                    'manufacture_name': brewery.name,
                 }for brewery in Manufacture.objects.filter(manufacture_type=ManufactureType.objects.get(name="양조장"))],
 
                 'tag': [{
