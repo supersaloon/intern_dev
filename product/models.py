@@ -88,7 +88,7 @@ class IndustrialProductInfo(models.Model):
     business_name                  = models.CharField(max_length=45)
     location                       = models.CharField(max_length=200)
     shelf_life                     = models.CharField(max_length=100)
-    volume_by_packing              = models.IntegerField(default=1)
+    volume_by_packing              = models.CharField(max_length=45)
     base_material_name_and_content = models.CharField(max_length=200)
     nutrient                       = models.CharField(max_length=200)
     gmo                            = models.CharField(max_length=45)
