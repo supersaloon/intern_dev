@@ -25,6 +25,8 @@ class ProductImageView(View):
 
             product_image_ids = []
             product_images = request.FILES.getlist('product_image')
+            if not product_images:
+                return JsonResponse({"MESSAGE": "NO IMAGES"}, status=400)
             for product_image in product_images:
                 filename = str(uuid.uuid1()).replace('-', '')
                 response = s3_client.upload_fileobj(
