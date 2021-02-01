@@ -1,6 +1,4 @@
-import boto3
 import uuid
-import json
 
 from django.http  import JsonResponse
 from django.views import View

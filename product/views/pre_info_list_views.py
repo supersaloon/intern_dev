@@ -15,17 +15,17 @@ class PreInfoListView(View):
             pre_info_data = {
                 'product_category': [{
                     'id'              : product_category.id,
-                    'name': product_category.name,
+                    'product_category': product_category.name,
                 } for product_category in ProductCategory.objects.all()],
 
                 'drink_category'  : [{
                     'id'            : drink_category.id,
-                    'name': drink_category.name,
+                    'drink_category': drink_category.name,
                 } for drink_category in DrinkCategory.objects.all()],
 
-                'brewery': [{
+                'company_name': [{
                     'id': brewery.id,
-                    'name': brewery.name,
+                    'company_name': brewery.name,
                 }for brewery in Manufacture.objects.filter(manufacture_type=ManufactureType.objects.get(name="양조장"))],
 
                 'tag': [{
