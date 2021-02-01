@@ -37,9 +37,6 @@ class DrinkListView(View):
                             .order_by('-created_at')
                             )[offset:limit]
 
-            for product in products:
-                print(product.id)
-                print(product.drinkdetail_set.all())
 
             drink_data = [{
                 'id' : product.id,
