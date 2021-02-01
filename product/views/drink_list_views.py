@@ -48,7 +48,7 @@ class DrinkListView(View):
                     'image_url'   : product_image.image_url,
                 }for product_image in product.productimage_set.all()],
                 'product_category': product.product_category.name,
-                'drink_category'  : product.drinkdetail_set.all()[0].drink_category.name if len(product.drinkdetail_set.all()) == 1 else None,
+                'drink_category'  : product.drinkdetail_set.all()[0].drink_category.name if len(product.drinkdetail_set.all()) == 1 else "",
                 'brewery'         : product.manufacture.name,
                 'product_name'    : product.name,
                 'price'           : product.price,
