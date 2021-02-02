@@ -149,13 +149,14 @@ class Volume(models.Model):
 
 
 # 주류 용량(및 가격) 중간 테이블
-class DrinkDetailVolume(models.Model):
+class DrinkOption(models.Model):
     drink_detail = models.ForeignKey('DrinkDetail', on_delete=models.CASCADE, null=True)
     volume       = models.ForeignKey(Volume, on_delete=models.SET_NULL, null=True)
     price        = models.DecimalField(max_digits = 10, decimal_places = 2)
+    amount       = models.IntegerField(default=0)
 
     class Meta:
-        db_table = 'drink_detail_volumes'
+        db_table = 'drink_options'
 
 
 class DrinkCategory(models.Model):
@@ -169,7 +170,7 @@ class DrinkDetail(models.Model):
     product                    = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     drink_category             = models.ForeignKey(DrinkCategory, on_delete=models.SET_NULL, null=True)
 
-    drink_detail_volume        = models.ManyToManyField(Volume, through=DrinkDetailVolume, related_name='drink_detail_volume_set')
+    drink_detail_volume        = models.ManyToManyField(Volume, through=DrinkOption, related_name='drink_detail_volume_set')
     drink_detail_base_material = models.ManyToManyField(BaseMaterial, through=DrinkDetailBaseMaterial, related_name='drink_detail_base_material_set')
     drink_detail_paring        = models.ManyToManyField(Paring, through=DrinkDetailParing, related_name='drink_detail_paring_set')
 

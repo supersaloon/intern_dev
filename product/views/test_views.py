@@ -11,7 +11,7 @@ from django.http import Http404
 
 from user.models    import Administrator
 from product.models import ProductCategory, DrinkCategory, IndustrialProductInfo, Manufacture, ManufactureType, Volume, \
-                           Label, TasteMatrix, DrinkDetail, DrinkDetailVolume, Product, Tag, ProductImage, Paring, BaseMaterial
+                           Label, TasteMatrix, DrinkDetail, DrinkOption, Product, Tag, ProductImage, Paring, BaseMaterial
 from product.utils import s3_client, reverse_foreign_key_finder
 
 

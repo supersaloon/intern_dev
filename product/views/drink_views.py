@@ -12,7 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from user.models    import Administrator
 from product.models import ProductCategory, DrinkCategory, IndustrialProductInfo, Manufacture, ManufactureType, Volume, \
-                           Label, TasteMatrix, DrinkDetail, DrinkDetailVolume, Product, Tag, ProductImage, Paring, BaseMaterial, \
+                           Label, TasteMatrix, DrinkDetail, DrinkOption, Product, Tag, ProductImage, Paring, BaseMaterial, \
                             ProductTag, DrinkDetailParing, DrinkDetailBaseMaterial
 
 from product.utils import s3_client, reverse_foreign_key_finder
@@ -133,16 +133,22 @@ class DrinkView(View):
                 drink_detail.drink_detail_base_material.add(base_material)
 
 
-            # DrinkDetailVolume 테이블
-            for volume_and_price in data['volume_and_price']:  # {"volume": "500ml", "price": "500"}
+            # DrinkOption 테이블
+            for drink_option in data['drink_option']:
+                '''
+                [{"volume": "500ml", "price": "5000", "amount": "1"},
+                {"volume": "700ml", "price": "7000", "amount": "2"},
+                {"volume": "1000ml", "price": "10000", "amount": "3"}]
+                '''
+                price        = drink_option['price']
+                amount       = drink_option['amount']
+                volume, flag = Volume.objects.get_or_create(name=drink_option['volume'])
 
-                price        = volume_and_price['price']
-                volume, flag = Volume.objects.get_or_create(name=volume_and_price['volume'])
-
-                DrinkDetailVolume.objects.get_or_create(
+                DrinkOption.objects.get_or_create(
                     drink_detail = drink_detail,
                     volume       = volume,
                     price        = price,
+                    amount       = amount,
                 )
 
             return JsonResponse({'MESSAGE': 'SUCCESS', 'product_id': product.id}, status=201)
