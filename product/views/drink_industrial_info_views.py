@@ -37,18 +37,19 @@ class DrinkIndustrialInfoView(View):
                 product.save()
 
             # industrial_product_info 테이블
-            industrial_product_info = IndustrialProductInfo.objects.get_or_create(product=product)
+            industrial_product_info, flag = IndustrialProductInfo.objects.get_or_create(product=product)
+            print(industrial_product_info)
 
-            industrial_product_info.food_type = data['food_type']
-            industrial_product_info.business_name = data['business_name']
-            industrial_product_info.location = data['location']
-            industrial_product_info.shelf_life = data['shelf_life']
-            industrial_product_info.volume_by_packing = data['volume_by_packing']
+            industrial_product_info.food_type                      = data['food_type']
+            industrial_product_info.business_name                  = data['business_name']
+            industrial_product_info.location                       = data['location']
+            industrial_product_info.shelf_life                     = data['shelf_life']
+            industrial_product_info.volume_by_packing              = data['volume_by_packing']
             industrial_product_info.base_material_name_and_content = data['base_material_name_and_content']
-            industrial_product_info.nutrient = data['nutrient']
-            industrial_product_info.gmo = data['gmo']
-            industrial_product_info.import_declaration = data['import_declaration']
-            industrial_product_info.label_url = data['label']
+            industrial_product_info.nutrient                       = data['nutrient']
+            industrial_product_info.gmo                            = data['gmo']
+            industrial_product_info.import_declaration             = data['import_declaration']
+            industrial_product_info.label_url                      = data['label']
             industrial_product_info.save()
 
             return JsonResponse({'MESSAGE': 'SUCCESS', 'product_id': product.id, 'product_name': product.name}, status=201)
@@ -57,8 +58,8 @@ class DrinkIndustrialInfoView(View):
             return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
-        except Exception as e:
-            return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
+        # except Exception as e:
+        #     return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
 
 
     def get(self, request, product_id):
