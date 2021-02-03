@@ -18,6 +18,7 @@ from product.models import ProductCategory, DrinkCategory, IndustrialProductInfo
 from product.utils import s3_client, reverse_foreign_key_finder
 
 
+
 class DrinkBaseInfoView(View):
     # @signin_decorator
     @transaction.atomic
