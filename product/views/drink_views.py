@@ -203,8 +203,15 @@ class DrinkView(View):
             drink_detail            = (DrinkDetail.objects
                                          .prefetch_related("drinkoption_set__volume")
                                          .get(product_id=product.id))
-            industrial_product_info = product.industrialproductinfo_set.get()
-            taste_matrix            = drink_detail.tastematrix_set.get()
+            industrial_product_info = product.industrialproductinfo_set.filter()
+            if industrial_product_info:
+                industrial_product_info = industrial_product_info[0]
+
+            taste_matrix            = drink_detail.tastematrix_set.filter()
+            if taste_matrix:
+                taste_matrix = taste_matrix[0]
+            print("=====================================")
+            print(f"taste_matrix: {taste_matrix}")
 
             drink_data = {
                 "id"                            : product.id,
@@ -217,12 +224,9 @@ class DrinkView(View):
                                                         "image_url": product_image.image_url,
                 }for product_image in product.productimage_set.all()],
 
-                "label"                         : [{
-                                                        "id"       : label.id,
-                                                        "image_url": label.image_url,
-                }for label in product.label_set.all()],
+                "label"                         : industrial_product_info.label if industrial_product_info else "",
 
-                "manufacture_name"              : product.manufacture.name,
+                "manufacture_name"              : product.manufacture.name if product.manufacture else "",
                 "product_name"                  : product.name,
                 "subtitle"                      : product.subtitle,
                 "price"                         : product.price,
@@ -236,39 +240,35 @@ class DrinkView(View):
                                                         "name": tag.name,
                 }for tag in product.product_tag.all()],
 
-                "food_type"                     : industrial_product_info.food_type,
-                "business_name"                 : industrial_product_info.business_name,
-                "location"                      : industrial_product_info.location,
-                "shelf_life"                    : industrial_product_info.shelf_life,
-                "volume_by_packing"             : industrial_product_info.volume_by_packing,
-                "base_material_name_and_content": industrial_product_info.base_material_name_and_content,
-                "nutrient"                      : industrial_product_info.nutrient,
-                "gmo"                           : industrial_product_info.gmo,
-                "import_declaration"            : industrial_product_info.import_declaration,
+                "food_type"                     : industrial_product_info.food_type if industrial_product_info else "",
+                "business_name"                 : industrial_product_info.business_name if industrial_product_info else "",
+                "location"                      : industrial_product_info.location if industrial_product_info else "",
+                "shelf_life"                    : industrial_product_info.shelf_life if industrial_product_info else "",
+                "volume_by_packing"             : industrial_product_info.volume_by_packing if industrial_product_info else "",
+                "base_material_name_and_content": industrial_product_info.base_material_name_and_content if industrial_product_info else "",
+                "nutrient"                      : industrial_product_info.nutrient if industrial_product_info else "",
+                "gmo"                           : industrial_product_info.gmo if industrial_product_info else "",
+                "import_declaration"            : industrial_product_info.import_declaration if industrial_product_info else "",
 
-                "alcohol_content"               : drink_detail.alcohol_content,
-                "fragrance"                     : drink_detail.fragrance,
-                "flavor"                        : drink_detail.flavor,
-                "finish"                        : drink_detail.finish,
-                "with_who"                      : drink_detail.with_who,
-                "what_situation"                : drink_detail.what_situation,
-                "what_mood"                     : drink_detail.what_mood,
-                "what_profit"                   : drink_detail.what_profit,
-                "recommend_situation"           : drink_detail.recommend_situation,
-                "recommend_eating_method"       : drink_detail.recommend_eating_method,
-                "additional_info"               : drink_detail.additional_info,
+                "alcohol_content"               : drink_detail.alcohol_content if drink_detail.alcohol_content else "",
+                "fragrance"                     : drink_detail.fragrance if drink_detail.fragrance else "",
+                "flavor"                        : drink_detail.flavor if drink_detail.flavor else "",
+                "finish"                        : drink_detail.finish if drink_detail.finish else "",
+                "recommend_situation"           : drink_detail.recommend_situation if drink_detail.finish else "",
+                "recommend_eating_method"       : drink_detail.recommend_eating_method if drink_detail.recommend_eating_method else "",
+                "additional_info"               : drink_detail.additional_info if drink_detail.additional_info else "",
 
-                "taste_body"                    : taste_matrix.body,
-                "taste_acidity"                 : taste_matrix.acidity,
-                "taste_sweetness"               : taste_matrix.sweetness,
-                "taste_tannin"                  : taste_matrix.tannin,
-                "taste_bitter"                  : taste_matrix.bitter,
-                "taste_sparkling"               : taste_matrix.sparkling,
-                "taste_light"                   : taste_matrix.light,
-                "taste_turbidity"               : taste_matrix.turbidity,
-                "taste_savory"                  : taste_matrix.savory,
-                "taste_gorgeous"                : taste_matrix.gorgeous,
-                "taste_spicy"                   : taste_matrix.spicy,
+                "taste_body"                    : taste_matrix.body if taste_matrix else "",
+                "taste_acidity"                 : taste_matrix.acidity if taste_matrix else "",
+                "taste_sweetness"               : taste_matrix.sweetness if taste_matrix else "",
+                "taste_tannin"                  : taste_matrix.tannin if taste_matrix else "",
+                "taste_bitter"                  : taste_matrix.bitter if taste_matrix else "",
+                "taste_sparkling"               : taste_matrix.sparkling if taste_matrix else "",
+                "taste_light"                   : taste_matrix.light if taste_matrix else "",
+                "taste_turbidity"               : taste_matrix.turbidity if taste_matrix else "",
+                "taste_savory"                  : taste_matrix.savory if taste_matrix else "",
+                "taste_gorgeous"                : taste_matrix.gorgeous if taste_matrix else "",
+                "taste_spicy"                   : taste_matrix.spicy if taste_matrix else "",
 
                 "paring"                        : [{
                                                         "id"         : paring.id,
@@ -294,8 +294,8 @@ class DrinkView(View):
             return JsonResponse({"MESSAGE": e.args[0]}, status=400)
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
-        except Exception as e:
-            return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
+        # except Exception as e:
+        #     return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
 
 
     @transaction.atomic
