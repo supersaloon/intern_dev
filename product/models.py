@@ -93,6 +93,7 @@ class IndustrialProductInfo(models.Model):
     nutrient                       = models.CharField(max_length=200)
     gmo                            = models.CharField(max_length=45)
     import_declaration             = models.CharField(max_length=200)
+    label_url                      = models.URLField(max_length=2000, null=True)
 
     class Meta:
         db_table = 'industrial_product_infos'

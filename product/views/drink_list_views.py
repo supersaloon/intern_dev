@@ -19,13 +19,16 @@ class DrinkListView(View):
         offset = int(request.GET.get('offset', 0))
         limit  = int(request.GET.get('limit', 10))
         limit += offset
-        drink_category = request.GET.get('drink_category')
+        drink_category = request.GET.get('drink_category', 'all')
+        search_keyword = request.GET.get('search_keyword', None)
+
 
         try:
-            if drink_category:
+            if not drink_category == 'all':
                 products = (Product.objects
                             .select_related('product_category', 'manufacture')
-                            .filter(drinkdetail__drink_category__name=drink_category)
+                            .filter(drinkdetail__drink_category__name = drink_category,
+                                    name__icontains                   = search_keyword)
                             .prefetch_related('productimage_set', 'drinkdetail_set', 'drinkdetail_set__drink_category')
                             .order_by('-created_at')
                             )[offset:limit]
@@ -33,6 +36,7 @@ class DrinkListView(View):
             else:
                 products = (Product.objects
                             .select_related('product_category', 'manufacture')
+                            .filter(name__icontains = search_keyword)
                             .prefetch_related('productimage_set',  'drinkdetail_set', 'drinkdetail_set__drink_category')
                             .order_by('-created_at')
                             )[offset:limit]

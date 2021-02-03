@@ -9,6 +9,7 @@ from django.http      import Http404
 from user.models    import Administrator
 from product.models import ProductImage, Product
 from product.utils  import s3_client
+from my_settings import S3_BUCKET_URL, S3_BUCKET_NAME, S3_BUCKET_DIRECTORY
 
 
 class ProductImageView(View):
@@ -27,7 +28,10 @@ class ProductImageView(View):
             product_images = request.FILES.getlist('product_image')
             if not product_images:
                 return JsonResponse({"MESSAGE": "NO IMAGES"}, status=400)
+            print(f"product_images: {product_images}")
             for product_image in product_images:
+                print("------------------------------------------------------")
+                print(f'product_image: {product_image}')
                 filename = str(uuid.uuid1()).replace('-', '')
                 response = s3_client.upload_fileobj(
                     product_image,
@@ -37,6 +41,7 @@ class ProductImageView(View):
                         "ContentType": product_image.content_type
                     }
                 )
+                print(f"response: {response}")
                 image_url = f"https://s3.ap-northeast-2.amazonaws.com/rip-dev-bucket/intern_dev/{filename}"
 
                 product_image = ProductImage.objects.create(
