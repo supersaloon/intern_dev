@@ -34,12 +34,19 @@ class DrinkListView(View):
                             )[offset:limit]
 
             else:
-                products = (Product.objects
-                            .select_related('product_category', 'manufacture')
-                            .filter(name__icontains = search_keyword)
-                            .prefetch_related('productimage_set',  'drinkdetail_set', 'drinkdetail_set__drink_category')
-                            .order_by('-created_at')
-                            )[offset:limit]
+                if search_keyword:
+                    products = (Product.objects
+                                .select_related('product_category', 'manufacture')
+                                .filter(name__icontains = search_keyword)
+                                .prefetch_related('productimage_set',  'drinkdetail_set', 'drinkdetail_set__drink_category')
+                                .order_by('-created_at')
+                                )[offset:limit]
+                else:
+                    products = (Product.objects
+                                .select_related('product_category', 'manufacture')
+                                .prefetch_related('productimage_set',  'drinkdetail_set', 'drinkdetail_set__drink_category')
+                                .order_by('-created_at')
+                                )[offset:limit]
 
 
             drink_data = [{
