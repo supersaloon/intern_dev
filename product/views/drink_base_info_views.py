@@ -18,85 +18,75 @@ from product.models import ProductCategory, DrinkCategory, IndustrialProductInfo
 from product.utils import s3_client, reverse_foreign_key_finder
 
 
-# class DrinkView(View):
-#     # @signin_decorator
-#     @transaction.atomic
-#     def post(self, request):
-#         try:
-#             data = json.loads(request.body)
-#
-#             # products 테이블
-#             product = Product.objects.create(
-#                 name             = data['product_name'],
-#                 subtitle         = data['subtitle'],
-#                 price            = data['price'],
-#                 content          = data['content'],
-#                 is_damhwa_box    = data['is_damhwa_box'],
-#                 discount_rate    = data['discount_rate'],
-#                 award            = data['award'],
-#                 product_category = ProductCategory.objects.get(name=data['product_category']),
-#                 # manufacture      = Manufacture.objects.get(name=data['manufacture_name']),
-#                 uploader         = Administrator.objects.get(name   = "homer"),
-#             )
-#
-#             # product_image
-#             if data.get('product_image'):
-#                 for product_image_id in data.get('product_image'):
-#                     # product_image 에 빈 스트링이 들어오면 for 문 안쪽의 코드가 실행되지 않음
-#                     product_image         = ProductImage.objects.get(id = product_image_id)
-#                     product_image.product = product
-#                     product_image.save()
-#
-#
-#             # products 테이블에 태그 추가
-#             for tag in data['tag']:
-#                 tag, flag = Tag.objects.get_or_create(name=tag)
-#                 product.product_tag.add(tag)
-#                 print(f"태그: {tag.name} 추가 완료")
-#
-#
-#
-#
-#             # parings 테이블
-#             for paring in data['paring']:
-#                 paring, flag = Paring.objects.get_or_create(
-#                     name = paring,
-#                 )
-#                 drink_detail.drink_detail_paring.add(paring)
-#
-#
-#             # base_materials 테이블
-#             for base_material in data['base_material']:
-#                 base_material, flag = BaseMaterial.objects.get_or_create(
-#                     name = base_material
-#                 )
-#                 drink_detail.drink_detail_base_material.add(base_material)
-#
-#
-#             # DrinkOption 테이블
-#             for drink_option in data['drink_option']:
-#                 '''
-#                 [{"volume": "500ml", "price": "5000", "amount": "1"},
-#                 {"volume": "700ml", "price": "7000", "amount": "2"},
-#                 {"volume": "1000ml", "price": "10000", "amount": "3"}]
-#                 '''
-#                 price        = drink_option['price']
-#                 amount       = drink_option['amount']
-#                 volume, flag = Volume.objects.get_or_create(name=drink_option['volume'])
-#
-#                 DrinkOption.objects.get_or_create(
-#                     drink_detail = drink_detail,
-#                     volume       = volume,
-#                     price        = price,
-#                     amount       = amount,
-#                 )
-#
-#             return JsonResponse({'MESSAGE': 'SUCCESS', 'product_id': product.id}, status=201)
-#
-#         except IntegrityError as e:
-#             return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
-#         except KeyError as e:
-#             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
+class DrinkBaseInfoView(View):
+    # @signin_decorator
+    @transaction.atomic
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+
+            # products 테이블
+            product = Product.objects.create(
+                name             = data['product_name'],
+                subtitle         = data['subtitle'],
+                price            = data['price'],
+                content          = data['content'],
+                is_damhwa_box    = data['is_damhwa_box'],
+                discount_rate    = data['discount_rate'],
+                award            = data['award'],
+                product_category = ProductCategory.objects.get(name=data['product_category']),
+                uploader         = Administrator.objects.get(name="homer"),
+            )
+
+
+            # drink_details 테이블
+            drink_detail =DrinkDetail.objects.create(
+                product                 = product,
+                drink_category          = DrinkCategory.objects.get(name=data['drink_category']),
+            )
+
+
+            # Tag
+            if data['tag']:
+                for tag in data['tag']:
+                    tag, flag = Tag.objects.get_or_create(name=tag)
+                    product.product_tag.add(tag)
+
+
+            # base_materials 테이블
+            if data['base_material']:
+                for base_material in data['base_material']:
+                    base_material, flag = BaseMaterial.objects.get_or_create(
+                        name = base_material
+                    )
+                    drink_detail.drink_detail_base_material.add(base_material)
+
+
+            # DrinkOption 테이블
+            if data['drink_option']:
+                for drink_option in data['drink_option']:
+                    '''
+                    [{"volume": "500ml", "price": "5000", "amount": "1"},
+                    {"volume": "700ml", "price": "7000", "amount": "2"},
+                    {"volume": "1000ml", "price": "10000", "amount": "3"}]
+                    '''
+                    price        = drink_option['price']
+                    amount       = drink_option['amount']
+                    volume, flag = Volume.objects.get_or_create(name=drink_option['volume'])
+
+                    DrinkOption.objects.get_or_create(
+                        drink_detail = drink_detail,
+                        volume       = volume,
+                        price        = price,
+                        amount       = amount,
+                    )
+
+            return JsonResponse({'MESSAGE': 'SUCCESS', 'product_id': product.id, 'product_name': product.name}, status=201)
+
+        except IntegrityError as e:
+            return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
+        except KeyError as e:
+            return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
         # except Exception as e:
         #     return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
 

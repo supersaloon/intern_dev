@@ -175,7 +175,7 @@ class DrinkDetail(models.Model):
     drink_detail_base_material = models.ManyToManyField(BaseMaterial, through=DrinkDetailBaseMaterial, related_name='drink_detail_base_material_set')
     drink_detail_paring        = models.ManyToManyField(Paring, through=DrinkDetailParing, related_name='drink_detail_paring_set')
 
-    alcohol_content            = models.DecimalField(max_digits = 3, decimal_places = 1)
+    alcohol_content            = models.DecimalField(max_digits = 3, decimal_places = 1, null=True)
     fragrance                  = models.CharField(max_length=100, null=True)
     flavor                     = models.CharField(max_length=100, null=True)
     finish                     = models.CharField(max_length=100, null=True)
