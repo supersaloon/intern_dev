@@ -100,8 +100,8 @@ class DrinkBaseInfoView(View):
             return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
-        except Exception as e:
-            return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
+        # except Exception as e:
+        #     return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
 
 
     # def delete(self, request, product_id):
