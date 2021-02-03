@@ -18,7 +18,9 @@ urlpatterns = [
     path('/drink', DrinkView.as_view()),
     path('/drink_list', DrinkListView.as_view()),
     path('/drink/<int:product_id>', DrinkView.as_view()),
+
     path('/drink/base_info', DrinkBaseInfoView.as_view()),
+    path('/drink/base_info/<int:product_id>', DrinkBaseInfoView.as_view()),
 
     path('/product_image', ProductImageView.as_view()),
     path('/product_image/<int:product_image_id>', ProductImageView.as_view()),
