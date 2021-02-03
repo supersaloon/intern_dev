@@ -29,10 +29,10 @@ class DrinkBaseInfoView(View):
             product = Product.objects.create(
                 name             = data['product_name'],
                 subtitle         = data['subtitle'],
-                price            = data['price'],
+                price            = data['price'] if data['price'] else 0,
                 content          = data['content'],
                 is_damhwa_box    = data['is_damhwa_box'],
-                discount_rate    = data['discount_rate'],
+                discount_rate    = data['discount_rate'] if data['discount_rate'] else 0,
                 award            = data['award'],
                 product_category = ProductCategory.objects.get(name=data['product_category']),
                 uploader         = Administrator.objects.get(name="homer"),
