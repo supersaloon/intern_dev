@@ -31,6 +31,14 @@ class DrinkIndustrialInfoView(View):
 
             # products 테이블
             product = Product.objects.get(id=data['product_id'])
+            manufacture = Manufacture.objects.get(name=data['manufacture_name'])
+
+            industrial_product_info = IndustrialProductInfo.objects.create(
+                product = product,
+                food_type = data['food_type'],
+
+            )
+
             product = Product.objects.create(
                 name             = data['product_name'],
                 subtitle         = data['subtitle'],

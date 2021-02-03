@@ -27,7 +27,7 @@ class DrinkListView(View):
             if not drink_category == 'all':
                 if search_keyword:
                     products = (Product.objects
-                                .select_related('product_category', 'manufacture')
+                                .select_related('product_category')
                                 .filter(drinkdetail__drink_category__name = drink_category,
                                         name__icontains                   = search_keyword)
                                 .prefetch_related('productimage_set', 'drinkdetail_set', 'drinkdetail_set__drink_category')
@@ -35,7 +35,7 @@ class DrinkListView(View):
                                 )[offset:limit]
                 else:
                     products = (Product.objects
-                                .select_related('product_category', 'manufacture')
+                                .select_related('product_category')
                                 .filter(drinkdetail__drink_category__name = drink_category)
                                 .prefetch_related('productimage_set', 'drinkdetail_set', 'drinkdetail_set__drink_category')
                                 .order_by('-created_at')
