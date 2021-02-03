@@ -104,27 +104,27 @@ class DrinkBaseInfoView(View):
             return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
 
 
-    def delete(self, request, product_id):
-        try:
-            # 상품 이미지 삭제
-            product_images = ProductImage.objects.filter(product_id=product_id)
-            for product_image in product_images:
-                filename = product_image.image_url.split('/rip-dev-bucket/')[1]
-                response = s3_client.delete_object(
-                    Bucket = "rip-dev-bucket",
-                    Key    = filename,
-                )
-                print(f"response: {response}")
-
-            # 상품 삭제
-            product = Product.objects.get(id=product_id)
-            product.delete()
-
-            return JsonResponse({'MESSAGE': 'SUCCESS'}, status=200)
-        except KeyError as e:
-            return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
-        except Exception as e:
-            return JsonResponse({"MESSAGE": "Exception => " + e.args[0]}, status=400)
+    # def delete(self, request, product_id):
+    #     try:
+    #         # 상품 이미지 삭제
+    #         product_images = ProductImage.objects.filter(product_id=product_id)
+    #         for product_image in product_images:
+    #             filename = product_image.image_url.split('/rip-dev-bucket/')[1]
+    #             response = s3_client.delete_object(
+    #                 Bucket = "rip-dev-bucket",
+    #                 Key    = filename,
+    #             )
+    #             print(f"response: {response}")
+    #
+    #         # 상품 삭제
+    #         product = Product.objects.get(id=product_id)
+    #         product.delete()
+    #
+    #         return JsonResponse({'MESSAGE': 'SUCCESS'}, status=200)
+    #     except KeyError as e:
+    #         return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
+    #     except Exception as e:
+    #         return JsonResponse({"MESSAGE": "Exception => " + e.args[0]}, status=400)
 
 
     def get(self, request, product_id):
@@ -134,7 +134,7 @@ class DrinkBaseInfoView(View):
                                          .prefetch_related("drinkoption_set__volume")
                                          .get(product_id=product.id))
 
-            drink_data = {
+            drink_base_info_data = {
                 "id"                            : product.id,
                 "product_category"              : product.product_category.name,
 
@@ -173,7 +173,7 @@ class DrinkBaseInfoView(View):
                 } for drink_option in drink_detail.drinkoption_set.all()]
             }
 
-            return JsonResponse({'MESSAGE': 'SUCCESS', 'drink_data': drink_data}, status=200)
+            return JsonResponse({'MESSAGE': 'SUCCESS', 'drink_base_info': drink_base_info_data}, status=200)
         except Product.DoesNotExist as e:
             return JsonResponse({"MESSAGE": e.args[0]}, status=400)
         except KeyError as e:
