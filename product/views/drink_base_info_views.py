@@ -24,6 +24,10 @@ class DrinkBaseInfoView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
+            print("=============================================")
+            print(f'data: {data}')
+
+            # product_type -> "주류" 로 하드코딩
 
             # products 테이블
             product = Product.objects.create(
@@ -31,7 +35,7 @@ class DrinkBaseInfoView(View):
                 subtitle         = data['subtitle'],
                 price            = data['price'] if data['price'] else 0,
                 content          = data['content'],
-                is_damhwa_box    = data['is_damhwa_box'],
+                is_damhwa_box    = data['is_damhwa_box'] if data['is_damhwa_box'] else False,
                 discount_rate    = data['discount_rate'] if data['discount_rate'] else 0,
                 award            = data['award'],
                 product_category = ProductCategory.objects.get(name=data['product_category']),
