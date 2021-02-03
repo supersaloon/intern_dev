@@ -9,7 +9,6 @@ from product.views.pre_info_list_views         import PreInfoListView
 from product.views.product_image_views         import ProductImageView
 from product.views.label_views                 import LabelView
 from product.views.drink_base_info_views       import DrinkBaseInfoView
-from product.views.test_views                  import TestView
 from product.views.drink_industrial_info_views import DrinkIndustrialInfoView
 from product.views.drink_evaluation_info_views import DrinkEvaluationInfoView
 
@@ -41,6 +40,4 @@ urlpatterns = [
     path('/category_list', CategoryListView.as_view()),
 
     path('/pre_info_list', PreInfoListView.as_view()),
-
-    path('/test/<int:id>', TestView.as_view()),
 ]
