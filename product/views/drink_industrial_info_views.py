@@ -95,7 +95,7 @@ class DrinkIndustrialInfoView(View):
             data = json.loads(request.body)
 
             # products 테이블
-            product = Product.objects.get(id=data['product_id'])
+            product = Product.objects.get(id=product_id)
 
             # manufacture 테이블
             if data['manufacture_name']:

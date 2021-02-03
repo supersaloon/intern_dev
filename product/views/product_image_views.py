@@ -6,7 +6,6 @@ from django.db        import transaction
 from django.shortcuts import get_object_or_404
 from django.http      import Http404
 
-from user.models    import Administrator
 from product.models import ProductImage, Product
 from product.utils  import s3_client
 from my_settings import S3_BUCKET_URL, S3_BUCKET_NAME, S3_BUCKET_DIRECTORY
@@ -54,11 +53,10 @@ class ProductImageView(View):
 
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
-        # except Exception as e:
-        #     return JsonResponse({"MESSAGE": "Exception => " + e.args[0]}, status=400)
+        except Exception as e:
+            return JsonResponse({"MESSAGE": "Exception => " + e.args[0]}, status=400)
 
 
-    #@signin_decorator
     def delete(self, request, product_image_id):
         try:
             product_image = get_object_or_404(ProductImage, id=product_image_id)

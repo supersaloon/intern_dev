@@ -3,12 +3,10 @@ from django.views import View
 from django.db    import transaction
 
 
-from product.models import ProductCategory, DrinkCategory, IndustrialProductInfo, Manufacture, ManufactureType, Volume, \
-                           Label, TasteMatrix, DrinkDetail, DrinkOption, Product, Tag, ProductImage, Paring, BaseMaterial
+from product.models import ProductCategory, DrinkCategory, Manufacture, ManufactureType, Volume, Tag, Paring, BaseMaterial
 
 
 class PreInfoListView(View):
-    # @signin_decorator
     @transaction.atomic
     def get(self, request):
         try:

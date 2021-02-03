@@ -141,10 +141,26 @@ class DrinkEvaluationInfoView(View):
 
             # paring
             for paring in data['paring']:
-                paring, flag = Paring.objects.get_or_create(
-                    name = paring,
-                )
-                drink_detail.drink_detail_paring.add(paring)
+                # 사용자가 add한 페어링을 추가
+                if paring['status'] == "add":
+                    new_paring, flag = Paring.objects.get_or_create(name=paring['name'])
+                    drink_detail.drink_detail_paring.add(new_paring)
+                    print(f"신규 페어링: {new_paring.name} 추가 완료")
+                # 사용자가 delete한 원재료를 삭제
+                elif paring['status'] == "delete":
+                    paring_to_disconnect = Paring.objects.get(id=paring['id'], name=paring['name'])
+                    drink_detail_paring_relation = DrinkDetailParing.objects.get(
+                        paring       = paring_to_disconnect,
+                        drink_detail = drink_detail)
+                    drink_detail_paring_relation.delete()
+                    print(f"페어링: {paring_to_disconnect.name} 삭제 완료")
+
+                    # 음료 상세와 관계가 제거된 페어링의 참조횟수가 0이면 페어링 삭제
+                    paring_ref_count = DrinkDetailParing.objects.filter(paring=paring_to_disconnect).count()
+                    print(f'>>>>> ref count of {paring_to_disconnect.name} is {paring_ref_count}')
+                    if paring_ref_count == 0:
+                        paring_to_disconnect.delete()
+
 
             return JsonResponse({'MESSAGE': 'SUCCESS', 'product_id': product.id, 'product_name': product.name}, status=200)
 

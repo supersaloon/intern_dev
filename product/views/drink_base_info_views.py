@@ -1,13 +1,9 @@
-import boto3
-import uuid
 import json
 
 from django.http  import JsonResponse
 from django.views import View
 from django.db    import transaction
 from django.db.utils import IntegrityError
-from django.shortcuts import get_object_or_404
-from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 
 from user.models    import Administrator
@@ -15,17 +11,12 @@ from product.models import ProductCategory, DrinkCategory, IndustrialProductInfo
                            Label, TasteMatrix, DrinkDetail, DrinkOption, Product, Tag, ProductImage, Paring, BaseMaterial, \
                             ProductTag, DrinkDetailParing, DrinkDetailBaseMaterial
 
-from product.utils import s3_client, reverse_foreign_key_finder
-
-
 
 class DrinkBaseInfoView(View):
     @transaction.atomic
     def post(self, request):
         try:
             data = json.loads(request.body)
-            print("=============================================")
-            print(f'data: {data}')
 
             # product_type -> "주류" 로 하드코딩
 
@@ -100,31 +91,8 @@ class DrinkBaseInfoView(View):
             return JsonResponse({"MESSAGE": "INTEGRITY_ERROR => " + e.args[0]}, status=400)
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
-        # except Exception as e:
-        #     return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
-
-
-    # def delete(self, request, product_id):
-    #     try:
-    #         # 상품 이미지 삭제
-    #         product_images = ProductImage.objects.filter(product_id=product_id)
-    #         for product_image in product_images:
-    #             filename = product_image.image_url.split('/rip-dev-bucket/')[1]
-    #             response = s3_client.delete_object(
-    #                 Bucket = "rip-dev-bucket",
-    #                 Key    = filename,
-    #             )
-    #             print(f"response: {response}")
-    #
-    #         # 상품 삭제
-    #         product = Product.objects.get(id=product_id)
-    #         product.delete()
-    #
-    #         return JsonResponse({'MESSAGE': 'SUCCESS'}, status=200)
-    #     except KeyError as e:
-    #         return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
-    #     except Exception as e:
-    #         return JsonResponse({"MESSAGE": "Exception => " + e.args[0]}, status=400)
+        except Exception as e:
+            return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
 
 
     def get(self, request, product_id):

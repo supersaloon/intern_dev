@@ -7,7 +7,6 @@ from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 
-from user.models    import Administrator
 from product.models import Manufacture, ManufactureType
 
 
