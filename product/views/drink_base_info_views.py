@@ -121,13 +121,13 @@ class DrinkBaseInfoView(View):
 
                 "tag"                           : [{
                                                         "id"  : tag.id,
-                                                        "name": tag.name,
+                                                        "label": tag.name,
                 }for tag in product.product_tag.all()],
 
 
                 "base_material"                 : [{
                                                         "id"  : base_material.id,
-                                                        "name": base_material.name,
+                                                        "label": base_material.name,
                 }for base_material in drink_detail.drink_detail_base_material.all()],
 
 
