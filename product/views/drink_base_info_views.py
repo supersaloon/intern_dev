@@ -50,6 +50,14 @@ class DrinkBaseInfoView(View):
                 drink_category          = DrinkCategory.objects.get(name=data['drink_category']),
             )
 
+            # product_image
+            if data.get('product_image'):
+                for product_image_id in data.get('product_image'):
+                    # product_image 에 빈 스트링이 들어오면 for 문 안쪽의 코드가 실행되지 않음
+                    product_image         = ProductImage.objects.get(id = product_image_id)
+                    product_image.product = product
+                    product_image.save()
+
 
             # Tag
             if data['tag']:
@@ -95,15 +103,27 @@ class DrinkBaseInfoView(View):
         except Exception as e:
             return JsonResponse({"MESSAGE": "Exception => " + str(e)}, status=400)
 
-    #
-    # #@signin_decorator
-    # def delete(self, request, product_id):
-    #     try:
-    #         # return JsonResponse({'MESSAGE': 'SUCCESS'}, status=200)
-    #     except KeyError as e:
-    #         return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
-    #     except Exception as e:
-    #         return JsonResponse({"MESSAGE": "Exception => " + e.args[0]}, status=400)
+
+    def delete(self, request, product_id):
+        try:
+            # 상품 이미지 삭제
+            product_images = ProductImage.objects.filter(product_id=product_id)
+            for product_image in product_images:
+                filename = product_image.image_url.split('/rip-dev-bucket/')[1]
+                response = s3_client.delete_object(
+                    Bucket = "rip-dev-bucket",
+                    Key    = filename,
+                )
+                print(f"response: {response}")
+
+            # 상품 삭제
+            product = Product.objects.get(id=product_id)
+            product.delete()
+            return JsonResponse({'MESSAGE': 'SUCCESS'}, status=200)
+        except KeyError as e:
+            return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
+        except Exception as e:
+            return JsonResponse({"MESSAGE": "Exception => " + e.args[0]}, status=400)
     #
     #
     # @transaction.atomic
