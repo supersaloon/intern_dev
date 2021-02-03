@@ -19,7 +19,7 @@ class DrinkListView(View):
         offset = int(request.GET.get('offset', 0))
         limit  = int(request.GET.get('limit', 10))
         limit += offset
-        drink_category = request.GET.get('drink_category', 'all')
+        drink_category = request.GET.get('drink_category', 'all') if request.GET.get('drink_category') else 'all'
         search_keyword = request.GET.get('search_keyword', None)
 
 
