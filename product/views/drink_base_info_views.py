@@ -135,11 +135,9 @@ class DrinkBaseInfoView(View):
                                          .get(product_id=product.id))
 
             drink_base_info_data = {
-                "id"                            : product.id,
+                "id"                    : product.id,
                 "product_category"              : product.product_category.name,
-
                 "drink_category"                : drink_detail.drink_category.name,
-
                 "product_image"                 : [{
                                                         "id"       : product_image.id,
                                                         "image_url": product_image.image_url,
