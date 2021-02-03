@@ -43,7 +43,7 @@ class LabelView(View):
                 # )
                 # label_ids.append(label.id)
 
-            return JsonResponse({'MESSAGE': 'SUCCESS', 'label_image': label_image_url}, status=201)
+            return JsonResponse({'MESSAGE': 'SUCCESS', 'label': label_image_url}, status=201)
 
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)

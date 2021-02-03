@@ -49,51 +49,6 @@ class DrinkIndustrialInfoView(View):
                 drink_category          = DrinkCategory.objects.get(name=data['drink_category']),
             )
 
-
-            # product_image
-            if data.get('product_image'):
-                for product_image_id in data.get('product_image'):
-                    # product_image 에 빈 스트링이 들어오면 for 문 안쪽의 코드가 실행되지 않음
-                    product_image         = ProductImage.objects.get(id = product_image_id)
-                    product_image.product = product
-                    product_image.save()
-
-
-            # Tag
-            if data['tag']:
-                for tag in data['tag']:
-                    tag, flag = Tag.objects.get_or_create(name=tag)
-                    product.product_tag.add(tag)
-
-
-            # base_materials 테이블
-            if data['base_material']:
-                for base_material in data['base_material']:
-                    base_material, flag = BaseMaterial.objects.get_or_create(
-                        name = base_material
-                    )
-                    drink_detail.drink_detail_base_material.add(base_material)
-
-
-            # DrinkOption 테이블
-            if data['drink_option']:
-                for drink_option in data['drink_option']:
-                    '''
-                    [{"volume": "500ml", "price": "5000", "amount": "1"},
-                    {"volume": "700ml", "price": "7000", "amount": "2"},
-                    {"volume": "1000ml", "price": "10000", "amount": "3"}]
-                    '''
-                    price        = drink_option['price']
-                    amount       = drink_option['amount']
-                    volume, flag = Volume.objects.get_or_create(name=drink_option['volume'])
-
-                    DrinkOption.objects.get_or_create(
-                        drink_detail = drink_detail,
-                        volume       = volume,
-                        price        = price,
-                        amount       = amount,
-                    )
-
             return JsonResponse({'MESSAGE': 'SUCCESS', 'product_id': product.id, 'product_name': product.name}, status=201)
 
         except IntegrityError as e:
