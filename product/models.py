@@ -193,17 +193,17 @@ class DrinkDetail(models.Model):
 
 class TasteMatrix(models.Model):
     drink_detail = models.ForeignKey(DrinkDetail, on_delete=models.CASCADE, null=True)
-    body         = models.DecimalField(max_digits = 2, decimal_places = 1)
-    acidity      = models.DecimalField(max_digits = 2, decimal_places = 1)
-    sweetness    = models.DecimalField(max_digits = 2, decimal_places = 1)
-    tannin       = models.DecimalField(max_digits = 2, decimal_places = 1)
-    bitter       = models.DecimalField(max_digits = 2, decimal_places = 1)
-    sparkling    = models.DecimalField(max_digits = 2, decimal_places = 1)
-    light        = models.DecimalField(max_digits = 2, decimal_places = 1)
-    turbidity    = models.DecimalField(max_digits = 2, decimal_places = 1)
-    savory       = models.DecimalField(max_digits = 2, decimal_places = 1)
-    gorgeous     = models.DecimalField(max_digits = 2, decimal_places = 1)
-    spicy        = models.DecimalField(max_digits = 2, decimal_places = 1)
+    body         = models.DecimalField(max_digits = 2, decimal_places = 1, null=True)
+    acidity      = models.DecimalField(max_digits = 2, decimal_places = 1, null=True)
+    sweetness    = models.DecimalField(max_digits = 2, decimal_places = 1, null=True)
+    tannin       = models.DecimalField(max_digits = 2, decimal_places = 1, null=True)
+    bitter       = models.DecimalField(max_digits = 2, decimal_places = 1, null=True)
+    sparkling    = models.DecimalField(max_digits = 2, decimal_places = 1, null=True)
+    light        = models.DecimalField(max_digits = 2, decimal_places = 1, null=True)
+    turbidity    = models.DecimalField(max_digits = 2, decimal_places = 1, null=True)
+    savory       = models.DecimalField(max_digits = 2, decimal_places = 1, null=True)
+    gorgeous     = models.DecimalField(max_digits = 2, decimal_places = 1, null=True)
+    spicy        = models.DecimalField(max_digits = 2, decimal_places = 1, null=True)
 
     class Meta:
         db_table = 'taste_matrixs'

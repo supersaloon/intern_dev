@@ -11,6 +11,7 @@ from product.views.label_views                 import LabelView
 from product.views.drink_base_info_views       import DrinkBaseInfoView
 from product.views.test_views                  import TestView
 from product.views.drink_industrial_info_views import DrinkIndustrialInfoView
+from product.views.drink_evaluation_info_views import DrinkEvaluationInfoView
 
 
 urlpatterns = [
@@ -23,6 +24,9 @@ urlpatterns = [
 
     path('/drink/industrial_info', DrinkIndustrialInfoView.as_view()),
     path('/drink/industrial_info/<int:product_id>', DrinkIndustrialInfoView.as_view()),
+
+    path('/drink/evaluation_info', DrinkEvaluationInfoView.as_view()),
+    path('/drink/evaluation_info/<int:product_id>', DrinkEvaluationInfoView.as_view()),
 
     path('/product_image', ProductImageView.as_view()),
     path('/product_image/<int:product_image_id>', ProductImageView.as_view()),
