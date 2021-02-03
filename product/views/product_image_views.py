@@ -50,7 +50,7 @@ class ProductImageView(View):
                 )
                 product_image_ids.append(product_image.id)
 
-            return JsonResponse({'MESSAGE': 'SUCCESS', "product_image_ids": product_image_ids}, status=201)
+            return JsonResponse({'MESSAGE': 'SUCCESS', "product_image": product_image_ids}, status=201)
 
         except KeyError as e:
             return JsonResponse({"MESSAGE": "KEY_ERROR => " + e.args[0]}, status=400)
