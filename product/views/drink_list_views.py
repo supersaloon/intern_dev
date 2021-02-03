@@ -45,14 +45,14 @@ class DrinkListView(View):
             else:
                 if search_keyword:
                     products = (Product.objects
-                                .select_related('product_category', 'manufacture')
+                                .select_related('product_category')
                                 .filter(name__icontains = search_keyword)
                                 .prefetch_related('productimage_set',  'drinkdetail_set', 'drinkdetail_set__drink_category')
                                 .order_by('-created_at')
                                 )[offset:limit]
                 else:
                     products = (Product.objects
-                                .select_related('product_category', 'manufacture')
+                                .select_related('product_category')
                                 .prefetch_related('productimage_set',  'drinkdetail_set', 'drinkdetail_set__drink_category')
                                 .order_by('-created_at')
                                 )[offset:limit]
@@ -66,7 +66,7 @@ class DrinkListView(View):
                 }for product_image in product.productimage_set.all()],
                 'product_category': product.product_category.name,
                 'drink_category'  : product.drinkdetail_set.all()[0].drink_category.name if len(product.drinkdetail_set.all()) == 1 else "",
-                'brewery'         : product.manufacture.name if product.manufacture else "",
+                # 'brewery'         : product.manufacture.name if product.manufacture else "",
                 'product_name'    : product.name,
                 'price'           : product.price,
                 'discount_rate'   : product.discount_rate,
