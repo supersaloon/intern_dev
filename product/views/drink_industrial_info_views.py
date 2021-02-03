@@ -27,35 +27,23 @@ class DrinkIndustrialInfoView(View):
             print("=============================================")
             print(f'data: {data}')
 
-            # product_type -> "주류" 로 하드코딩
-
             # products 테이블
             product = Product.objects.get(id=data['product_id'])
             manufacture = Manufacture.objects.get(name=data['manufacture_name'])
+            product.manufacture = manufacture
 
-            industrial_product_info = IndustrialProductInfo.objects.create(
-                product = product,
-                food_type = data['food_type'],
-
-            )
-
-            product = Product.objects.create(
-                name             = data['product_name'],
-                subtitle         = data['subtitle'],
-                price            = data['price'] if data['price'] else 0,
-                content          = data['content'],
-                is_damhwa_box    = data['is_damhwa_box'] if data['is_damhwa_box'] else False,
-                discount_rate    = data['discount_rate'] if data['discount_rate'] else 0,
-                award            = data['award'],
-                product_category = ProductCategory.objects.get(name=data['product_category']),
-                uploader         = Administrator.objects.get(name="homer"),
-            )
-
-
-            # drink_details 테이블
-            drink_detail =DrinkDetail.objects.create(
-                product                 = product,
-                drink_category          = DrinkCategory.objects.get(name=data['drink_category']),
+            IndustrialProductInfo.objects.create(
+                product                        = product,
+                food_type                      = data['food_type'],
+                business_name                  = data['business_name'],
+                location                       = data['location'],
+                shelf_life                     = data['shelf_life'],
+                volume_by_packing              = data['volume_by_packing'],
+                base_material_name_and_content = data['base_material_name_and_content'],
+                nutrient                       = data['nutrient'],
+                gmo                            = data['gmo'],
+                import_declaration             = data['import_declaration'],
+                label_url                      = data['label'],
             )
 
             return JsonResponse({'MESSAGE': 'SUCCESS', 'product_id': product.id, 'product_name': product.name}, status=201)

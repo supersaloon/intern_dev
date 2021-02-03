@@ -84,15 +84,15 @@ class ProductImage(models.Model):
 
 class IndustrialProductInfo(models.Model):
     product                        = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
-    food_type                      = models.CharField(max_length=45)
-    business_name                  = models.CharField(max_length=45)
-    location                       = models.CharField(max_length=200)
-    shelf_life                     = models.CharField(max_length=100)
-    volume_by_packing              = models.CharField(max_length=45)
-    base_material_name_and_content = models.CharField(max_length=200)
-    nutrient                       = models.CharField(max_length=200)
-    gmo                            = models.CharField(max_length=45)
-    import_declaration             = models.CharField(max_length=200)
+    food_type                      = models.CharField(max_length=45, null=True)
+    business_name                  = models.CharField(max_length=45, null=True)
+    location                       = models.CharField(max_length=200, null=True)
+    shelf_life                     = models.CharField(max_length=100, null=True)
+    volume_by_packing              = models.CharField(max_length=45, null=True)
+    base_material_name_and_content = models.CharField(max_length=200, null=True)
+    nutrient                       = models.CharField(max_length=200, null=True)
+    gmo                            = models.CharField(max_length=45, null=True)
+    import_declaration             = models.CharField(max_length=200, null=True)
     label_url                      = models.URLField(max_length=2000, null=True)
 
     class Meta:
