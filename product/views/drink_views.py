@@ -224,7 +224,7 @@ class DrinkView(View):
                                                         "image_url": product_image.image_url,
                 }for product_image in product.productimage_set.all()],
 
-                "label"                         : industrial_product_info.label if industrial_product_info else "",
+                "label"                         : industrial_product_info.label_url if industrial_product_info else "",
 
                 "manufacture_name"              : product.manufacture.name if product.manufacture else "",
                 "product_name"                  : product.name,
