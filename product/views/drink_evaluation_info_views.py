@@ -30,7 +30,7 @@ class DrinkEvaluationInfoView(View):
 
             # drink_detail 테이블
             drink_detail, flag = DrinkDetail.objects.get_or_create(product=product)
-            drink_detail.alcohol_content         = data['alcohol_content']
+            drink_detail.alcohol_content         = data['alcohol_content'] if data['alcohol_content'] else 0
             drink_detail.fragrance               = data['fragrance']
             drink_detail.flavor                  = data['flavor']
             drink_detail.finish                  = data['finish']
