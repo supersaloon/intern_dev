@@ -210,8 +210,6 @@ class DrinkView(View):
             taste_matrix            = drink_detail.tastematrix_set.filter()
             if taste_matrix:
                 taste_matrix = taste_matrix[0]
-            print("=====================================")
-            print(f"taste_matrix: {taste_matrix}")
 
             drink_data = {
                 "id"                            : product.id,
@@ -237,7 +235,7 @@ class DrinkView(View):
 
                 "tag"                           : [{
                                                         "id"  : tag.id,
-                                                        "name": tag.name,
+                                                        "label": tag.name,
                 }for tag in product.product_tag.all()],
 
                 "food_type"                     : industrial_product_info.food_type                      if industrial_product_info else "",
@@ -272,12 +270,12 @@ class DrinkView(View):
 
                 "paring"                        : [{
                                                         "id"         : paring.id,
-                                                        "name"       : paring.name,
+                                                        "label"       : paring.name,
                 }for paring in drink_detail.drink_detail_paring.all()],
 
                 "base_material"                 : [{
                                                         "id"  : base_material.id,
-                                                        "name": base_material.name,
+                                                        "label": base_material.name,
                 }for base_material in drink_detail.drink_detail_base_material.all()],
 
 
